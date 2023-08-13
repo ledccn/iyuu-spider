@@ -29,9 +29,7 @@
     "ext-libxml": "*",
     "ext-dom": "*",
     "ledc/curl": "^1.1",
-    "guzzlehttp/guzzle": "^7.7",
-    "jaeger/querylist": "^4.2"
-  },
+    "guzzlehttp/guzzle": "^7.7"},
   "autoload": {
     "psr-4": {
       "Iyuu\\Spider\\": "src"
