@@ -27,7 +27,7 @@ Arguments:
 
 Options:
       --type[=TYPE]     爬虫类型:cookie,rss [default: "cookie"]
-      --uri[=uri]       页面路径 [default: ""]
+      --uri[=URI]       统一资源标识符 [default: ""]
       --begin[=BEGIN]   开始页码 [default: ""]
       --end[=END]       结束页码 [default: ""]
       --daemon          守护进程
