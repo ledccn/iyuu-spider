@@ -53,7 +53,6 @@ class SpiderCommand extends Command
         $site = $input->getArgument('site');
         // 接收选项
         $type = $input->getOption('type');
-        var_dump($input->hasOption('daemon'));
         $params = array_merge($input->getArguments(), $input->getOptions());
 
         //本地配置
@@ -68,21 +67,22 @@ class SpiderCommand extends Command
         if (!in_array($type, ['cookie', 'rss'])) {
             throw new RuntimeException('未定义的爬虫类型：' . $type);
         }
+        $output->writeln("爬取站点 开始 ----->>> $site");
         switch ($type) {
             case 'rss':
                 if ($sites instanceof ProcessorXml) {
-                    print_r($sites->processXml());
+                    $sites->processXml();
                 } else {
                     throw new RuntimeException(get_class($sites) . '未实现接口：' . ProcessorXml::class);
                 }
                 break;
             case 'cookie':
             default:
-                print_r($sites->process());
+                $sites->process();
                 break;
         }
         // 指令输出
-        $output->writeln("开始爬取站点 ----->>> $site");
+        $output->writeln("爬取站点 结束 ----->>> $site");
         return self::SUCCESS;
     }
 }
