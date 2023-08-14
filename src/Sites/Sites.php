@@ -15,17 +15,17 @@ abstract class Sites implements Processor, Downloader
      * 本地配置
      * @var Config
      */
-    protected Config $config;
+    private Config $config;
     /**
      * 服务器配置
      * @var SiteModel
      */
-    protected SiteModel $siteModel;
+    private SiteModel $siteModel;
     /**
      * 启动参数
      * @var Params
      */
-    protected Params $params;
+    private Params $params;
 
     /**
      * 构造函数
