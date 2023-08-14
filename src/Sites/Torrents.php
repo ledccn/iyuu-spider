@@ -26,7 +26,7 @@ class Torrents extends DataStruct
     private static array $observers = [];
 
     /**
-     * 数据转换为模型对象
+     * 数据转换为种子对象
      * @param array $items
      * @param Sites $sites
      * @return Collection
