@@ -8,8 +8,14 @@ use RuntimeException;
 /**
  * 站点爬虫工厂类
  */
-class Factory
+final class Factory
 {
+    /**
+     * 服务提供者
+     * @var string[]
+     */
+    private static array $provider = [];
+
     /**
      * 创建
      * @param Config $config 本地配置
@@ -17,17 +23,51 @@ class Factory
      * @param Params $params 启动参数
      * @return Sites
      */
-    final public static function create(Config $config, SiteModel $siteModel, Params $params): Sites
+    public static function create(Config $config, SiteModel $siteModel, Params $params): Sites
     {
         $site = $siteModel->site;
-        $class = __NAMESPACE__ . "\\{$site}\\Handler";
-        if (!class_exists($class)) {
-            throw new RuntimeException('站点处理类不存在:' . $class);
+        $provider = Factory::getProvider($site);
+        if (!$provider) {
+            $provider = __NAMESPACE__ . "\\{$site}\\Handler";
         }
-        if (!is_a($class, Sites::class, true)) {
-            throw new RuntimeException($class . '未继承：' . Sites::class);
-        }
+        Factory::checkProvider($provider);
 
-        return new $class($config, $siteModel, $params);
+        return new $provider($config, $siteModel, $params);
+    }
+
+    /**
+     * 验证服务提供者类
+     * @param string $provider 服务提供者的完整类名
+     * @return void
+     */
+    public static function checkProvider(string $provider): void
+    {
+        if (!class_exists($provider)) {
+            throw new RuntimeException('服务提供者类不存在:' . $provider);
+        }
+        if (!is_a($provider, Sites::class, true)) {
+            throw new RuntimeException($provider . '未继承：' . Sites::class);
+        }
+    }
+
+    /**
+     * 获取服务提供者
+     * @param string $site 站点标识
+     * @return string|null
+     */
+    public static function getProvider(string $site): ?string
+    {
+        return Factory::$provider[$site] ?? null;
+    }
+
+    /**
+     * 注册服务提供者
+     * @param string $site 站点标识
+     * @param string $provider 服务提供者的完整类名
+     */
+    public static function setProvider(string $site, string $provider): void
+    {
+        Factory::checkProvider($provider);
+        Factory::$provider[$site] = $provider;
     }
 }
