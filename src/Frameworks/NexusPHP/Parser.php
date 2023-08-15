@@ -9,6 +9,7 @@ use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Support\Selector;
+use Iyuu\Spider\Utils;
 use Ledc\Curl\Curl;
 use RuntimeException;
 use think\Collection;
@@ -220,7 +221,7 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
                 $torrent['filename'] = $id . '.torrent';
                 $torrent['type'] = 0;   // 免费0
                 $torrent['time'] = date("Y-m-d H:i:s", $time);
-                $torrent['size'] = data_size($length);
+                $torrent['size'] = Utils::dataSize($length);
                 $torrent['length'] = $length;
                 $torrent['guid'] = $guid;
                 $items[] = $torrent;
