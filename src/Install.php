@@ -14,7 +14,6 @@ class Install
      */
     protected static array $pathRelation = array(
         'config/plugin/iyuu/spider' => 'config/plugin/iyuu/spider',
-        'config/iyuu.php' => 'config/iyuu.php'
     );
 
     /**
