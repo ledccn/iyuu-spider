@@ -154,10 +154,10 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
     /**
      * 下载种子
      * - cookie下载或rss下载
-     * @param null $args
+     * @param Torrents|null $args
      * @return string|bool|null
      */
-    public function download($args = null): string|bool|null
+    public function download(Torrents $args = null): string|bool|null
     {
         if ($args instanceof Torrents) {
             $curl = Curl::getInstance()->setCommon(30, 120);
