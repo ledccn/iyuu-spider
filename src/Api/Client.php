@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Api;
 
+use InvalidArgumentException;
 use Ledc\Curl\Curl;
 use RuntimeException;
 
@@ -48,6 +49,9 @@ class Client
      */
     public function __construct(string $iyuuToken)
     {
+        if (empty($iyuuToken)) {
+            throw new InvalidArgumentException('IYUU令牌为空');
+        }
         $this->iyuuToken = $iyuuToken;
         $this->curl = new Curl();
         $this->curl->setCommon(8, 8);
@@ -68,9 +72,14 @@ class Client
             $response = json_decode($res->response, true);
             if ($this->isSuccess($response) && !empty($response['data']['sites'])) {
                 return array_column($response['data']['sites'], null, 'site');
+            } else {
+                $errmsg = $response['msg'] ?? '获取站点失败';
+                throw new RuntimeException($errmsg);
             }
         }
-        throw new RuntimeException('获取站点列表失败');
+
+        $errmsg = $this->formatErrorMessage($res);
+        throw new RuntimeException('获取站点失败：' . $errmsg);
     }
 
     /**
@@ -89,5 +98,14 @@ class Client
     public function isSuccess(mixed $response): bool
     {
         return is_array($response) && isset($response['ret']) && 200 === $response['ret'];
+    }
+
+    /**
+     * @param \Curl\Curl $curl
+     * @return string
+     */
+    public function formatErrorMessage(\Curl\Curl $curl): string
+    {
+        return $curl->error_message ?? '服务器无响应';
     }
 }

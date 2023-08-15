@@ -53,8 +53,12 @@ class SpiderCommand extends Command
         $site = $input->getArgument('site');
         // 接收选项
         $type = $input->getOption('type');
-        $params = array_merge($input->getArguments(), $input->getOptions());
+        if (!in_array($type, ['cookie', 'rss'])) {
+            throw new RuntimeException('未定义的爬虫类型：' . $type);
+        }
 
+        //爬取参数
+        $params = array_merge($input->getArguments(), $input->getOptions());
         //本地配置
         $config = config('sites.' . $site);
         if (empty($config)) {
@@ -63,10 +67,8 @@ class SpiderCommand extends Command
         //服务器配置
         $siteModel = SiteModel::make($site);
 
+        //构造爬虫实例
         $sites = Factory::create(new Config($config), $siteModel, new Params($params));
-        if (!in_array($type, ['cookie', 'rss'])) {
-            throw new RuntimeException('未定义的爬虫类型：' . $type);
-        }
         $output->writeln("爬取站点 开始 ----->>> $site");
         switch ($type) {
             case 'rss':
