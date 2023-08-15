@@ -136,7 +136,7 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
      */
     public function requestHtml(string $url = ''): string
     {
-        $curl = Curl::getInstance()->setCommon( 20, 30);
+        $curl = Curl::getInstance()->setCommon(20, 30);
         $config = $this->getConfig();
         $curl->setCookies($config->get('cookies'));
         $curl->get($url);
