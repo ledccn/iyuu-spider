@@ -161,7 +161,11 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
     {
         if ($args instanceof Torrents) {
             $curl = Curl::getInstance()->setCommon(30, 120);
-            $curl->setCookies($this->getConfig()->get('cookies'));
+            //检查rss标志
+            if (!$args->get('guid')) {
+                //凭借cookies下载种子
+                $curl->setCookies($this->getConfig()->get('cookies'));
+            }
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
