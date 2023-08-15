@@ -4,6 +4,7 @@ namespace Iyuu\Spider\Frameworks\NexusPHP;
 
 use DOMDocument;
 use Exception;
+use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
@@ -15,12 +16,12 @@ use think\Collection;
 /**
  * NexusPHP页面解析器
  */
-class Parser extends Sites implements ProcessorXml
+class Parser extends Sites implements ProcessorXml, PageUriBuilder
 {
     /**
      * 种子列表页，第一页默认页码
      */
-    protected int $defaultPage = 0;
+    protected int $beginPage = 0;
 
     /**
      * @param string $path
@@ -75,7 +76,7 @@ class Parser extends Sites implements ProcessorXml
                 $arr['filename'] = $arr['id'] . '.torrent';
 
                 // 种子促销类型解码
-                if (strpos($v, 'class="pro_free') === false) {
+                if (!str_contains($v, 'class="pro_free')) {
                     // 不免费
                     $arr['type'] = 1;
                 } else {
@@ -100,12 +101,21 @@ class Parser extends Sites implements ProcessorXml
     }
 
     /**
-     * 获取
+     * 获取默认页面地址
      * @return string
      */
     protected function getDefaultPath(): string
     {
-        return str_replace('{}', $this->getStartPage(), 'torrents.php?incldead=0&page={}');
+        return static::pageBuilder($this->getStartPage());
+    }
+
+    /**
+     * @param int $page
+     * @return string
+     */
+    public static function pageBuilder(int $page): string
+    {
+        return str_replace('{page}', $page, 'torrents.php?incldead=0&page={page}');
     }
 
     /**
@@ -114,8 +124,8 @@ class Parser extends Sites implements ProcessorXml
      */
     protected function getStartPage(): int
     {
-        $page = $this->params->start;
-        return is_numeric($page) ? (int)$page : $this->defaultPage;
+        $page = $this->getParams()->begin;
+        return is_numeric($page) ? (int)$page : $this->beginPage;
     }
 
     /**
@@ -125,12 +135,13 @@ class Parser extends Sites implements ProcessorXml
      */
     public function requestHtml(string $url = ''): string
     {
-        $curl = Curl::getInstance()->setCommon( 5);
+        $curl = Curl::getInstance()->setCommon( 20, 30);
         $config = $this->getConfig();
-        $curl->setCookies($config->get('cookie'));
+        $curl->setCookies($config->get('cookies'));
         $curl->get($url);
         if (!$curl->isSuccess()) {
-            throw new RuntimeException('网络不通或cookie过期');
+            $errmsg = $curl->error_message ?? '网络不通或cookies过期';
+            throw new RuntimeException($errmsg);
         }
         $html = $curl->response;
         if (is_bool($html) || empty($html)) {
@@ -142,11 +153,21 @@ class Parser extends Sites implements ProcessorXml
     /**
      * 下载种子
      * - cookie下载或rss下载
-     * @return mixed
+     * @param null $args
+     * @return string|bool|null
      */
-    public function download(): mixed
+    public function download($args = null): string|bool|null
     {
-        // TODO: Implement download() method.
+        if ($args instanceof Torrents) {
+            $curl = Curl::getInstance()->setCommon(30, 120);
+            $curl->setCookies($this->getConfig()->get('cookies'));
+            $curl->get($args->download);
+            if (!$curl->isSuccess()) {
+                $errmsg = $curl->error_message ?? '网络不通或cookie过期';
+                throw new RuntimeException($errmsg);
+            }
+            return $curl->response;
+        }
         return '';
     }
 
@@ -160,7 +181,7 @@ class Parser extends Sites implements ProcessorXml
         $siteModel = $this->getSiteModel();
         $host = $siteModel->getHost() . '/';
         $url = $host . ($path ?: $this->getDefaultXmlPath());
-        $curl = Curl::getInstance()->setCommon(false, 5, 10);
+        $curl = Curl::getInstance()->setCommon(20, 30);
         $curl->get($url);
         if (!$curl->isSuccess()) {
             throw new RuntimeException('网络不通或cookie过期');

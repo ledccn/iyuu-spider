@@ -69,6 +69,24 @@ final class SiteModel extends DataStruct
     }
 
     /**
+     * 构造下载种子的URL链接
+     * @param string|null $torrentUrl
+     * @param array $urlReplace
+     * @param array $urlJoin
+     * @return string
+     */
+    final public function builderTorrentUrl(string $torrentUrl = null, array $urlReplace = [], array $urlJoin = []): string
+    {
+        $torrentUrl = $torrentUrl ?: $this->download_page;
+        //第一步：替换
+        $torrentUrl = strtr($torrentUrl, $urlReplace);
+
+        //第二步：拼接
+        $delimiter = str_contains($torrentUrl, '?') ? '&' : '?';
+        return $torrentUrl . $delimiter . implode('&', $urlJoin);
+    }
+
+    /**
      * @return string
      */
     final public function getHost(): string
