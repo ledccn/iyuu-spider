@@ -2,6 +2,8 @@
 
 namespace Iyuu\Spider;
 
+use RuntimeException;
+
 /**
  * 工具包
  */
@@ -33,5 +35,22 @@ class Utils
         }
 
         return number_format($bytes, $decimals) . $delimiter . $type[$i];
+    }
+
+    /**
+     * 创建目录
+     * @param string $directory
+     * @return void
+     */
+    public static function createDir(string $directory): void
+    {
+        if (!is_dir($directory)) {
+            if (false === @mkdir($directory, 0777, true) && !is_dir($directory)) {
+                throw new RuntimeException(sprintf('Unable to create the "%s" directory', $directory));
+            }
+        }
+        if (!is_writable($directory)) {
+            throw new RuntimeException(sprintf('Unable to write in the "%s" directory', $directory));
+        }
     }
 }
