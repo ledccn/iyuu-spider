@@ -1,10 +1,8 @@
 <?php
 
-namespace Iyuu\Spider\Sites\beitai;
+namespace Iyuu\Spider\Sites\tjupt;
 
 use Iyuu\Spider\Frameworks\NexusPHP\Parser;
-use Iyuu\Spider\Observers\Report;
-use Iyuu\Spider\Sites\Torrents;
 
 /**
  * 爬虫句柄

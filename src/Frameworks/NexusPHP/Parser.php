@@ -4,6 +4,7 @@ namespace Iyuu\Spider\Frameworks\NexusPHP;
 
 use DOMDocument;
 use Exception;
+use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Sites\Sites;
@@ -136,7 +137,7 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
      */
     public function requestHtml(string $url = ''): string
     {
-        $curl = Curl::getInstance()->setCommon(20, 30);
+        $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon( 20, 30)->setSslVerify();
         $config = $this->getConfig();
         $curl->setCookies($config->get('cookies'));
         $curl->get($url);
@@ -154,18 +155,14 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
     /**
      * 下载种子
      * - cookie下载或rss下载
-     * @param Torrents|null $args
+     * @param null $args
      * @return string|bool|null
      */
-    public function download(Torrents $args = null): string|bool|null
+    public function download($args = null): string|bool|null
     {
         if ($args instanceof Torrents) {
-            $curl = Curl::getInstance()->setCommon(30, 120);
-            //检查rss标志
-            if (!$args->get('guid')) {
-                //凭借cookies下载种子
-                $curl->setCookies($this->getConfig()->get('cookies'));
-            }
+            $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon(30, 120)->setSslVerify();
+            $curl->setCookies($this->getConfig()->get('cookies'));
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
@@ -186,10 +183,13 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
         $siteModel = $this->getSiteModel();
         $host = $siteModel->getHost() . '/';
         $url = $host . ($path ?: $this->getDefaultXmlPath());
-        $curl = Curl::getInstance()->setCommon(20, 30);
+        //var_dump($url);
+        $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon(20, 30)->setSslVerify();
         $curl->get($url);
         if (!$curl->isSuccess()) {
-            throw new RuntimeException('网络不通或cookie过期');
+            //var_dump($curl);
+            $errmsg = $curl->error_message ?? '网络不通或cookie过期';
+            throw new RuntimeException($errmsg);
         }
         $xml = $curl->response;
         if (is_bool($xml) || empty($xml)) {

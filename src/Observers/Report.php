@@ -13,7 +13,7 @@ class Report implements Observer
 {
     public static function update(Sites $sites, Torrents $torrent): void
     {
-        echo $sites->getSiteModel()->site . PHP_EOL;
-        //print_r($torrent->toArray());
+        //echo $sites->getSiteModel()->site . PHP_EOL;
+        print_r($torrent->toArray());
     }
 }

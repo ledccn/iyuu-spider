@@ -14,7 +14,9 @@ final class Factory
      * 服务提供者
      * @var string[]
      */
-    private static array $provider = [];
+    private static array $provider = [
+        'm-team' => \Iyuu\Spider\Sites\mteam\Handler::class,
+    ];
 
     /**
      * 创建
