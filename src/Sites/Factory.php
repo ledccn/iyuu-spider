@@ -72,4 +72,13 @@ final class Factory
         Factory::checkProvider($provider);
         Factory::$provider[$site] = $provider;
     }
+
+    /**
+     * 获得当前命名空间
+     * @return string
+     */
+    final public static function getNamespace(): string
+    {
+        return __NAMESPACE__;
+    }
 }
