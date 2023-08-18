@@ -38,7 +38,7 @@ class MakeSpiderCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $name = trim($input->getArgument('name'));
+        $site = $name = trim($input->getArgument('name'));
         $type = $input->getArgument('type');
 
         $output->writeln("Make spider handler $name");
@@ -46,9 +46,29 @@ class MakeSpiderCommand extends Command
         $name = $this->nameToNamespace($name);
         $file = dirname(__DIR__) . "/Sites/$name/Handler.php";
         $namespace = Factory::getNamespace() . "\\$name";
+        $this->editProvider($site, $name, $namespace);
         $this->createSpider($name, $namespace, $file, $type);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param string $site 站点标识
+     * @param string $name 转换后的目录名
+     * @param string $namespace 服务提供者的命名空间
+     * @return void
+     */
+    protected function editProvider(string $site, string $name, string $namespace): void
+    {
+        if ($site !== $name) {
+            $provider = Factory::getProvider($site);
+            if (!$provider) {
+                $file = Factory::getFilepath();
+                $file_content = file_get_contents($file);
+                $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\Handler::class,\n    ];//PROVIDER_END", $file_content);
+                file_put_contents($file, $file_content);
+            }
+        }
     }
 
     /**
@@ -61,7 +81,7 @@ class MakeSpiderCommand extends Command
         $name = str_replace(['\\', '/'], '', $name);
         $namespace = strtolower($name);
         return preg_replace_callback(['/-([a-zA-Z])/', '/(\/[a-zA-Z])/'], function ($matches) {
-            return strtoupper($matches[1]);
+            return $matches[1];
         }, $namespace);
     }
 

@@ -16,7 +16,7 @@ final class Factory
      */
     private static array $provider = [
         'm-team' => \Iyuu\Spider\Sites\mteam\Handler::class,
-    ];
+    ];//PROVIDER_END不要删除这里
 
     /**
      * 创建
@@ -63,6 +63,15 @@ final class Factory
     }
 
     /**
+     * 所有服务提供者
+     * @return string[]
+     */
+    public static function allProvider(): array
+    {
+        return self::$provider;
+    }
+
+    /**
      * 注册服务提供者
      * @param string $site 站点标识
      * @param string $provider 服务提供者的完整类名
@@ -80,5 +89,14 @@ final class Factory
     final public static function getNamespace(): string
     {
         return __NAMESPACE__;
+    }
+
+    /**
+     * 获取当前文件路径
+     * @return string
+     */
+    final public static function getFilepath(): string
+    {
+        return __FILE__;
     }
 }

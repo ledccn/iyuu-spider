@@ -1,6 +1,6 @@
 <?php
 
-namespace Iyuu\Spider\Sites\keepfrds;
+namespace Iyuu\Spider\Sites\ttg;
 
 use Iyuu\Spider\Frameworks\NexusPHP\Parser;
 
@@ -9,5 +9,5 @@ use Iyuu\Spider\Frameworks\NexusPHP\Parser;
  */
 class Handler extends Parser
 {
-    const SITE_NAME = 'keepfrds';
+    const SITE_NAME = 'ttg';
 }

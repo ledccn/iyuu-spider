@@ -9,4 +9,5 @@ use Iyuu\Spider\Frameworks\NexusPHP\Parser;
  */
 class Handler extends Parser
 {
+    const SITE_NAME = 'btschool';
 }
