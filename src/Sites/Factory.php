@@ -8,8 +8,12 @@ use RuntimeException;
 /**
  * 站点爬虫工厂类
  */
-final class Factory
+class Factory
 {
+    /**
+     * 默认类名
+     */
+    final const DEFAULT_CLASSNAME = 'Handler';
     /**
      * 服务提供者
      * @var string[]
@@ -28,11 +32,11 @@ final class Factory
     public static function create(Config $config, SiteModel $siteModel, Params $params): Sites
     {
         $site = $siteModel->site;
-        $provider = Factory::getProvider($site);
+        $provider = self::getProvider($site);
         if (!$provider) {
-            $provider = __NAMESPACE__ . "\\{$site}\\Handler";
+            $provider = static::getNamespace() . "\\{$site}\\" . self::DEFAULT_CLASSNAME;
         }
-        Factory::checkProvider($provider);
+        self::checkProvider($provider);
 
         return new $provider($config, $siteModel, $params);
     }
@@ -42,7 +46,7 @@ final class Factory
      * @param string $provider 服务提供者的完整类名
      * @return void
      */
-    public static function checkProvider(string $provider): void
+    final public static function checkProvider(string $provider): void
     {
         if (!class_exists($provider)) {
             throw new RuntimeException('服务提供者类不存在:' . $provider);
@@ -57,16 +61,16 @@ final class Factory
      * @param string $site 站点标识
      * @return string|null
      */
-    public static function getProvider(string $site): ?string
+    final public static function getProvider(string $site): ?string
     {
-        return Factory::$provider[$site] ?? null;
+        return self::$provider[$site] ?? null;
     }
 
     /**
      * 所有服务提供者
      * @return string[]
      */
-    public static function allProvider(): array
+    final public static function allProvider(): array
     {
         return self::$provider;
     }
@@ -76,7 +80,7 @@ final class Factory
      * @param string $site 站点标识
      * @param string $provider 服务提供者的完整类名
      */
-    public static function setProvider(string $site, string $provider): void
+    final public static function setProvider(string $site, string $provider): void
     {
         Factory::checkProvider($provider);
         Factory::$provider[$site] = $provider;
@@ -86,7 +90,7 @@ final class Factory
      * 获得当前命名空间
      * @return string
      */
-    final public static function getNamespace(): string
+    public static function getNamespace(): string
     {
         return __NAMESPACE__;
     }
@@ -98,5 +102,14 @@ final class Factory
     final public static function getFilepath(): string
     {
         return __FILE__;
+    }
+
+    /**
+     * 获取当前目录名
+     * @return string
+     */
+    final public static function getDirname(): string
+    {
+        return __DIR__;
     }
 }

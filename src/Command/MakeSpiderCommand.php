@@ -44,7 +44,7 @@ class MakeSpiderCommand extends Command
         $output->writeln("Make spider handler $name");
 
         $name = $this->nameToNamespace($name);
-        $file = dirname(__DIR__) . "/Sites/$name/Handler.php";
+        $file = Factory::getDirname() . "/$name/" . Factory::DEFAULT_CLASSNAME . ".php";
         $namespace = Factory::getNamespace() . "\\$name";
         $this->editProvider($site, $name, $namespace);
         $this->createSpider($name, $namespace, $file, $type);
@@ -65,7 +65,7 @@ class MakeSpiderCommand extends Command
             if (!$provider) {
                 $file = Factory::getFilepath();
                 $file_content = file_get_contents($file);
-                $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\Handler::class,\n    ];//PROVIDER_END", $file_content);
+                $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
                 file_put_contents($file, $file_content);
             }
         }
