@@ -45,9 +45,12 @@ class MakeSpiderCommand extends Command
 
         $name = $this->nameToNamespace($name);
         $file = Factory::getDirname() . "/$name/" . Factory::DEFAULT_CLASSNAME . ".php";
+        if (is_file($file)) {
+            throw new \RuntimeException('已存在文件：' . "$name/" . Factory::DEFAULT_CLASSNAME . '.php');
+        }
         $namespace = Factory::getNamespace() . "\\$name";
         $this->editProvider($site, $name, $namespace);
-        $this->createSpider($name, $namespace, $file, $type);
+        $this->createSpider($site, $name, $namespace, $file, $type);
 
         return self::SUCCESS;
     }
@@ -61,13 +64,14 @@ class MakeSpiderCommand extends Command
     protected function editProvider(string $site, string $name, string $namespace): void
     {
         if ($site !== $name) {
-            $provider = Factory::getProvider($site);
-            if (!$provider) {
-                $file = Factory::getFilepath();
-                $file_content = file_get_contents($file);
-                $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
-                file_put_contents($file, $file_content);
+            if (Factory::getProvider($site)) {
+                throw new \RuntimeException('已存在服务提供者：' . $site);
             }
+
+            $file = Factory::getFilepath();
+            $file_content = file_get_contents($file);
+            $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
+            file_put_contents($file, $file_content);
         }
     }
 
@@ -77,12 +81,15 @@ class MakeSpiderCommand extends Command
      */
     protected function nameToNamespace(string $name): string
     {
-        // make:spider 不支持子目录
-        $name = str_replace(['\\', '/'], '', $name);
-        $namespace = strtolower($name);
-        return preg_replace_callback(['/-([a-zA-Z])/', '/(\/[a-zA-Z])/'], function ($matches) {
-            return $matches[1];
-        }, $namespace);
+        // make:spider 不支持子目录、不支持-_
+        $namespace = str_replace(['\\', '/', '-', '_'], '', strtolower($name));
+        if (is_scalar($namespace) && ctype_alnum($namespace)) {
+            if (preg_match('/^[0-9].*$/', $namespace, $matches)) {
+                return 'site' . $namespace;
+            }
+            return $namespace;
+        }
+        throw  new \InvalidArgumentException('无效的站点名称');
     }
 
     /**
@@ -92,7 +99,7 @@ class MakeSpiderCommand extends Command
      * @param string $type
      * @return void
      */
-    protected function createSpider(string $name, string $namespace, string $file, string $type): void
+    protected function createSpider(string $site, string $name, string $namespace, string $file, string $type): void
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
@@ -107,10 +114,11 @@ use Iyuu\Spider\Frameworks\NexusPHP\Parser;
 
 /**
  * 爬虫句柄
+ * - dirname:$name
  */
 class Handler extends Parser
 {
-    const SITE_NAME = '$name';
+    const SITE_NAME = '$site';
 }
 
 EOF;

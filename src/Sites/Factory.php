@@ -20,6 +20,9 @@ class Factory
      */
     private static array $provider = [
         'm-team' => \Iyuu\Spider\Sites\mteam\Handler::class,
+        '1ptba' => \Iyuu\Spider\Sites\site1ptba\Handler::class,
+        '52pt' => \Iyuu\Spider\Sites\site52pt\Handler::class,
+        'hd-torrents' => \Iyuu\Spider\Sites\hdtorrents\Handler::class,
     ];//PROVIDER_END不要删除这里
 
     /**
