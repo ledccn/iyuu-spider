@@ -2,7 +2,9 @@
 
 namespace Iyuu\Spider\Command;
 
+use InvalidArgumentException;
 use Iyuu\Spider\Sites\Factory;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,8 +29,8 @@ class MakeSpiderCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addArgument('name', InputArgument::REQUIRED, 'spider handler name');
-        $this->addArgument('type', InputArgument::OPTIONAL, 'Type', '');
+        $this->addArgument('name', InputArgument::REQUIRED, '解析器服务提供者的类名');
+        $this->addArgument('type', InputArgument::OPTIONAL, '解析器的框架类型', '');
     }
 
     /**
@@ -46,7 +48,7 @@ class MakeSpiderCommand extends Command
         $name = $this->nameToNamespace($name);
         $file = Factory::getDirname() . "/$name/" . Factory::DEFAULT_CLASSNAME . ".php";
         if (is_file($file)) {
-            throw new \RuntimeException('已存在文件：' . "$name/" . Factory::DEFAULT_CLASSNAME . '.php');
+            throw new RuntimeException('已存在文件：' . "$name/" . Factory::DEFAULT_CLASSNAME . '.php');
         }
         $namespace = Factory::getNamespace() . "\\$name";
         $this->editProvider($site, $name, $namespace);
@@ -65,7 +67,7 @@ class MakeSpiderCommand extends Command
     {
         if ($site !== $name) {
             if (Factory::getProvider($site)) {
-                throw new \RuntimeException('已存在服务提供者：' . $site);
+                throw new RuntimeException('已存在服务提供者：' . $site);
             }
 
             $file = Factory::getFilepath();
@@ -89,14 +91,15 @@ class MakeSpiderCommand extends Command
             }
             return $namespace;
         }
-        throw  new \InvalidArgumentException('无效的站点名称');
+        throw  new InvalidArgumentException('无效的站点名称');
     }
 
     /**
-     * @param string $name
-     * @param string $namespace
-     * @param string $file
-     * @param string $type
+     * @param string $site 站点标识
+     * @param string $name 转换后的目录名
+     * @param string $namespace 服务提供者的命名空间
+     * @param string $file 生成的文件路径
+     * @param string $type 解析器的框架类型
      * @return void
      */
     protected function createSpider(string $site, string $name, string $namespace, string $file, string $type): void
