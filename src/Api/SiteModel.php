@@ -29,7 +29,7 @@ final class SiteModel extends DataStruct
     final public static function getServerSites(): array
     {
         $expire = 3600 * 6;     // 站点json文件有效期6小时
-        $file = runtime_path() . self::SITES_JSON_FILE;
+        $file = runtime_path(self::SITES_JSON_FILE);
         if (is_file($file) && ((filemtime($file) + $expire) > time())) {
             $json = file_get_contents($file, false, null);
             $sites = json_decode($json, true);
