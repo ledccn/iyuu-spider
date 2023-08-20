@@ -162,7 +162,9 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
     {
         if ($args instanceof Torrents) {
             $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon(30, 120)->setSslVerify();
-            $curl->setCookies($this->getConfig()->get('cookies'));
+            if ($args->isCookieRequired()) {
+                $curl->setCookies($this->getConfig()->get('cookies'));
+            }
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
@@ -234,7 +236,7 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
                 //页面解析失败
                 return new Collection([]);
             }
-            return Torrents::toCollection($items, $this);
+            return Torrents::toCollection($items, $this, false);
         } catch (Exception $e) {
             throw new RuntimeException('XML页面解析失败' . $e->getMessage() . PHP_EOL);
         }

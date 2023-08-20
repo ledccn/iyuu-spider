@@ -24,20 +24,45 @@ class Torrents extends DataStruct
      * @var Observer[]
      */
     private static array $observers = [];
+    /**
+     * 下载种子是否需要cookie
+     * @var bool
+     */
+    protected bool $cookieRequired = true;
+
+    /**
+     * 设置下载种子是否需要cookie
+     * @param bool $cookieRequired
+     */
+    public function setCookieRequired(bool $cookieRequired): void
+    {
+        $this->cookieRequired = $cookieRequired;
+    }
+
+    /**
+     * 判断下载种子是否需要cookie
+     * @return bool
+     */
+    public function isCookieRequired(): bool
+    {
+        return $this->cookieRequired;
+    }
 
     /**
      * 数据转换为种子对象
      * @param array $items
      * @param Sites $sites
+     * @param bool $cookieRequired
      * @return Collection
      */
-    public static function toCollection(array $items, Sites $sites): Collection
+    public static function toCollection(array $items, Sites $sites, bool $cookieRequired = true): Collection
     {
         if (empty($items)) {
             return new Collection([]);
         }
         foreach ($items as $key => &$item) {
             $item = new static($item);
+            $item->setCookieRequired($cookieRequired);
             self::notify($sites, $item);
         }
         return new Collection($items);
