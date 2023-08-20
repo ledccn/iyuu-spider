@@ -67,12 +67,11 @@ class Report implements Observer
             return;
         }
         $body = [
-            PHP_EOL . PHP_EOL . date('Y-m-d H:i:s'),
             '主标题：' . $torrent->h1 ?? '',
             '副标题：' . $torrent->title ?? '',
             '详情页：' . $torrent->details ?? '',
         ];
-        echo implode(PHP_EOL, $body);
+        echo implode(PHP_EOL, $body) . PHP_EOL;
     }
 
     /**
