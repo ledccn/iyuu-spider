@@ -14,6 +14,7 @@ class Install
      */
     protected static array $pathRelation = array(
         'config/plugin/iyuu/spider' => 'config/plugin/iyuu/spider',
+        'config/torrent_observer.php' => 'config/torrent_observer.php',
     );
 
     /**
@@ -23,13 +24,6 @@ class Install
     public static function install(): void
     {
         static::installByRelation();
-        //种子观察者
-        $source = 'config/torrent_observer.php';
-        $dest = base_path($source);
-        if (!is_file($dest)) {
-            copy(__DIR__ . "/$source", $dest);
-            echo "Create {$dest}" . PHP_EOL;
-        }
     }
 
     /**

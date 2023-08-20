@@ -20,6 +20,7 @@ trait SitePagination
      */
     public function currentPage(): int
     {
+        clearstatcache();
         $sitePageFile = $this->sitePageFilename();
         if (is_file($sitePageFile)) {
             $current_page = file_get_contents($sitePageFile, false, null);

@@ -6,6 +6,7 @@ use Iyuu\Spider\Contract\Observer;
 use Iyuu\Spider\Support\DataStruct;
 use RuntimeException;
 use think\Collection;
+use Throwable;
 
 /**
  * 种子数据结构
@@ -96,7 +97,9 @@ class Torrents extends DataStruct
             return;
         }
         foreach (self::$observers as $observer) {
-            $observer::update($sites, $torrent);
+            try {
+                $observer::update($sites, $torrent);
+            } catch (Throwable $throwable) {}
         }
     }
 }

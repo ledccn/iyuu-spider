@@ -53,6 +53,7 @@ class Utils
      */
     public static function createDir(string $directory): void
     {
+        clearstatcache();
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, 0777, true) && !is_dir($directory)) {
                 throw new RuntimeException(sprintf('Unable to create the "%s" directory', $directory));
@@ -61,5 +62,24 @@ class Utils
         if (!is_writable($directory)) {
             throw new RuntimeException(sprintf('Unable to write in the "%s" directory', $directory));
         }
+    }
+
+    /**
+     * 显示
+     * @param mixed $data
+     * @return void
+     */
+    public static function echo(mixed $data): void
+    {
+        $hr = PHP_EOL . '******************************' . date('Y-m-d H:i:s') . PHP_EOL;
+        $str = $hr;
+        $content = match (true) {
+            is_bool($data) => $data ? 'true' : false,
+            is_null($data) => 'null',
+            default => print_r($data, true)
+        };
+        $str .= $content . PHP_EOL;
+        $str .= '**********' . PHP_EOL;
+        echo $str;
     }
 }
