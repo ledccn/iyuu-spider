@@ -37,15 +37,16 @@ trait SitePagination
 
     /**
      * @param int $step 步进
+     * @param bool $retCurrent 返回当前页
      * @return int
      */
-    public function nextPage(int $step = 1): int
+    public function nextPage(int $step = 1, bool $retCurrent = true): int
     {
         $current_page = $this->currentPage();
         $next_page = $current_page + $step;
         $sitePageFile = $this->sitePageFilename();
         file_put_contents($sitePageFile, $next_page);
-        return $next_page;
+        return $retCurrent ? $current_page : $next_page;
     }
 
     /**
