@@ -8,7 +8,6 @@ use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
 use Iyuu\Spider\Sites\Sites;
-use JetBrains\PhpStorm\NoReturn;
 use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Worker;
@@ -67,7 +66,7 @@ class Application
             }
         } while ($page < $endPage);
 
-        if ($this->sites->getParams()->action && ($page > $endPage)) {
+        if ($this->sites->getParams()->action && $endPage && ($page > $endPage)) {
             self::stopMasterProcess(static::$worker);
         } else {
             self::stopAll();
@@ -86,7 +85,6 @@ class Application
      * 停止master进程
      * @param Worker $worker
      */
-    #[NoReturn]
     public function stopMasterProcess(Worker $worker): void
     {
         $start_file = $this->sites->getParams()->site;
