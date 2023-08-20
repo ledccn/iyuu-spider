@@ -5,11 +5,11 @@ namespace Iyuu\Spider\Frameworks\NexusPHP;
 use DOMDocument;
 use Exception;
 use Iyuu\Spider\Contract\Downloader;
-use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Support\Selector;
+use Iyuu\Spider\Traits\SitePagination;
 use Iyuu\Spider\Utils;
 use Ledc\Curl\Curl;
 use RuntimeException;
@@ -18,12 +18,9 @@ use think\Collection;
 /**
  * NexusPHP页面解析器
  */
-class Parser extends Sites implements ProcessorXml, PageUriBuilder
+class Parser extends Sites implements ProcessorXml
 {
-    /**
-     * 种子列表页，第一页默认页码
-     */
-    protected int $beginPage = 0;
+    use SitePagination;
 
     /**
      * @param string $path
@@ -118,16 +115,6 @@ class Parser extends Sites implements ProcessorXml, PageUriBuilder
     public static function pageBuilder(int $page): string
     {
         return str_replace('{page}', $page, 'torrents.php?incldead=0&page={page}');
-    }
-
-    /**
-     * 获取开始页码
-     * @return int
-     */
-    protected function getStartPage(): int
-    {
-        $page = $this->getParams()->begin;
-        return is_numeric($page) ? (int)$page : $this->beginPage;
     }
 
     /**

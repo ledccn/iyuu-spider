@@ -64,10 +64,10 @@ class Application
     /**
      * 初始化worker容器
      * @param array $config 配置
-     * @param bool $deamon 常驻守护进程
+     * @param bool $daemon 常驻守护进程
      * @return void
      */
-    final public static function initWorker(array $config, bool $deamon = false): void
+    final public static function initWorker(array $config, bool $daemon = false): void
     {
         ini_set('display_errors', 'on');
         error_reporting(E_ALL);
@@ -99,7 +99,7 @@ class Application
             Worker::$stopTimeout = $config['stop_timeout'] ?? 7;
         }
         
-        Worker::$daemonize = $deamon;
+        Worker::$daemonize = $daemon;
     }
 
     /**

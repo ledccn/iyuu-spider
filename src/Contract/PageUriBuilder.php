@@ -13,4 +13,16 @@ interface PageUriBuilder
      * @return string
      */
     public static function pageBuilder(int $page): string;
+
+    /**
+     * 当前页
+     * @return int
+     */
+    public function currentPage(): int;
+
+    /**
+     * 下一页
+     * @return int
+     */
+    public function nextPage(): int;
 }
