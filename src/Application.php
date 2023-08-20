@@ -2,15 +2,21 @@
 
 namespace Iyuu\Spider;
 
+use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
 use Iyuu\Spider\Sites\Sites;
+use JetBrains\PhpStorm\NoReturn;
 use Throwable;
 use Workerman\Connection\TcpConnection;
-use Workerman\Timer;
 use Workerman\Worker;
+use function file_get_contents;
+use function is_file;
+use function posix_kill;
+use function time;
+use function usleep;
 
 /**
  *  爬虫应用
@@ -37,6 +43,9 @@ class Application
      */
     public function __construct(Config $config, SiteModel $siteModel, Params $params)
     {
+        if (Utils::isWindowsOs()) {
+            throw new InvalidArgumentException('常驻内存仅支持Linux');
+        }
         $this->sites = Factory::create($config, $siteModel, $params);
     }
 
@@ -48,19 +57,21 @@ class Application
     public function onWorkerStart(Worker $worker): void
     {
         static::$worker = $worker;
+        $endPage = (int)$this->sites->getParams()->end ?: 0;
         do {
             $page = $this->sites->nextPage();
             try {
                 $uri = ($this->sites)->pageBuilder($page);
                 $this->sites->process($uri);
-            } catch (Throwable $throwable) {}
-        } while ($page < $this->sites->getParams()->end);
+            } catch (Throwable $throwable) {
+            }
+        } while ($page < $endPage);
 
-        self::stopAll();
-        /*Timer::add(5, function (Worker $worker) {
-            $workerId = $worker->id;
-            echo "工作进程{$workerId}：" . $this->sites->getParams()->site . PHP_EOL;
-        }, [$worker]);*/
+        if ($this->sites->getParams()->action && ($page > $endPage)) {
+            self::stopMasterProcess(static::$worker);
+        } else {
+            self::stopAll();
+        }
     }
 
     /**
@@ -69,6 +80,38 @@ class Application
      */
     public function onWorkerStop(): void
     {
+    }
+
+    /**
+     * 停止master进程
+     * @param Worker $worker
+     */
+    #[NoReturn]
+    public function stopMasterProcess(Worker $worker): void
+    {
+        $start_file = $this->sites->getParams()->site;
+        $master_pid = is_file($worker::$pidFile) ? (int)file_get_contents($worker::$pidFile) : 0;
+        $master_pid && posix_kill($master_pid, SIGINT);
+        // Timeout.
+        $timeout = $worker::$stopTimeout + 3;
+        $start_time = time();
+        // Check master process is still alive?
+        while (1) {
+            $master_is_alive = $master_pid && posix_kill($master_pid, 0);
+            if ($master_is_alive) {
+                // Timeout?
+                if (time() - $start_time >= $timeout) {
+                    $worker::log("Workerman Spider [$start_file] stop fail");
+                    exit;
+                }
+                // Waiting amoment.
+                usleep(10000);
+                continue;
+            }
+            // Stop success.
+            $worker::log("Workerman Spider [$start_file] stop success");
+            exit(0);
+        }
     }
 
     /**
@@ -108,7 +151,7 @@ class Application
         if (property_exists(Worker::class, 'stopTimeout')) {
             Worker::$stopTimeout = $config['stop_timeout'] ?? 7;
         }
-        
+
         Worker::$daemonize = $daemon;
     }
 
