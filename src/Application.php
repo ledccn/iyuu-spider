@@ -63,10 +63,11 @@ class Application
 
     /**
      * 初始化worker容器
-     * @param array $config
+     * @param array $config 配置
+     * @param bool $deamon 常驻守护进程
      * @return void
      */
-    final public static function initWorker(array $config): void
+    final public static function initWorker(array $config, bool $deamon = false): void
     {
         ini_set('display_errors', 'on');
         error_reporting(E_ALL);
@@ -97,6 +98,8 @@ class Application
         if (property_exists(Worker::class, 'stopTimeout')) {
             Worker::$stopTimeout = $config['stop_timeout'] ?? 7;
         }
+        
+        Worker::$daemonize = $deamon;
     }
 
     /**
@@ -113,12 +116,21 @@ class Application
             //worker主进程配置
             'event_loop' => '',
             'stop_timeout' => 7,
-            'pid_file' => rtrim(runtime_path(), PHP_EOL) . "/application_$site.php",
-            'status_file' => rtrim(runtime_path(), PHP_EOL) . "/application_$site.php",
+            'pid_file' => rtrim(runtime_path(), PHP_EOL) . "/application_$site.pid",
+            'status_file' => rtrim(runtime_path(), PHP_EOL) . "/application_$site.status",
             'stdout_file' => rtrim(runtime_path(), PHP_EOL) . '/logs/stdout.log',
             'log_file' => rtrim(runtime_path(), PHP_EOL) . '/logs/workerman.log',
             'max_package_size' => 10 * 1024 * 1024,
         ];
+    }
+
+    /**
+     * 运行所有worker容器
+     * @return void
+     */
+    public static function runAll(): void
+    {
+        Worker::runAll();
     }
 
     /**

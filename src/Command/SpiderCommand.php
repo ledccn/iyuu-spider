@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Command;
 
+use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Application;
 use Iyuu\Spider\Contract\ProcessorXml;
@@ -41,7 +42,7 @@ class SpiderCommand extends Command
             ->addOption('uri', null, InputOption::VALUE_OPTIONAL, '统一资源标识符', '')
             ->addOption('begin', null, InputOption::VALUE_OPTIONAL, '开始页码', '')
             ->addOption('end', null, InputOption::VALUE_OPTIONAL, '结束页码', '')
-            ->addOption('daemon', null, InputOption::VALUE_NONE, '守护进程');
+            ->addOption('daemon', 'd', InputOption::VALUE_NONE, '守护进程');
     }
 
     /**
@@ -71,7 +72,10 @@ class SpiderCommand extends Command
         $_params = new Params($params);
         //服务器配置
         $siteModel = SiteModel::make($site);
-        if (Utils::isLinuxOs() && $input->getOption('daemon')) {
+        if ($input->getArgument('action')) {
+            if (Utils::isWindowsOs()) {
+                throw new InvalidArgumentException('常驻内存仅支持Linux');
+            }
             return $this->startApplication($_config, $siteModel, $_params);
         }
 
@@ -106,7 +110,7 @@ class SpiderCommand extends Command
     protected function startApplication(Config $config, SiteModel $siteModel, Params $params): int
     {
         $conf = Application::buildConfig($siteModel->site);
-        Application::initWorker($conf);
+        Application::initWorker($conf, $params->daemon);
         $_config = [
             'count' => $config->get('count', 5),
             'reloadable' => false,
@@ -118,6 +122,7 @@ class SpiderCommand extends Command
             ],
         ];
         worker_start($siteModel->site, $_config);
+        Application::runAll();
         return self::SUCCESS;
     }
 }
