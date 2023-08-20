@@ -7,6 +7,7 @@ use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
 use Iyuu\Spider\Sites\Sites;
+use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Timer;
 use Workerman\Worker;
@@ -47,10 +48,19 @@ class Application
     public function onWorkerStart(Worker $worker): void
     {
         static::$worker = $worker;
-        Timer::add(5, function (Worker $worker) {
+        do {
+            $page = $this->sites->nextPage();
+            try {
+                $uri = ($this->sites)->pageBuilder($page);
+                $this->sites->process($uri);
+            } catch (Throwable $throwable) {}
+        } while ($page < $this->sites->getParams()->end);
+
+        self::stopAll();
+        /*Timer::add(5, function (Worker $worker) {
             $workerId = $worker->id;
             echo "工作进程{$workerId}：" . $this->sites->getParams()->site . PHP_EOL;
-        }, [$worker]);
+        }, [$worker]);*/
     }
 
     /**
