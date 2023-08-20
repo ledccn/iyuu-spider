@@ -49,7 +49,6 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      */
     protected function init(): void
     {
-        Torrents::observer(Report::class);
     }
 
     /**

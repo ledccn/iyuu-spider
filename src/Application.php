@@ -102,7 +102,7 @@ class Application
                     $worker::log("Workerman Spider [$start_file] stop fail");
                     exit;
                 }
-                // Waiting amoment.
+                // Waiting moment.
                 usleep(10000);
                 continue;
             }

@@ -32,7 +32,7 @@ class Torrents extends DataStruct
 
     /**
      * 设置下载种子是否需要cookie
-     * @param bool $cookieRequired
+     * @param bool $cookieRequired 下载种子是否需要cookie
      */
     public function setCookieRequired(bool $cookieRequired): void
     {
@@ -50,9 +50,9 @@ class Torrents extends DataStruct
 
     /**
      * 数据转换为种子对象
-     * @param array $items
-     * @param Sites $sites
-     * @param bool $cookieRequired
+     * @param array $items 二维的种子数组
+     * @param Sites $sites 站点对象
+     * @param bool $cookieRequired 下载种子是否需要cookie
      * @return Collection
      */
     public static function toCollection(array $items, Sites $sites, bool $cookieRequired = true): Collection
@@ -86,8 +86,8 @@ class Torrents extends DataStruct
 
     /**
      * 通知观察者
-     * @param Sites $sites
-     * @param Torrents $torrent
+     * @param Sites $sites 站点对象
+     * @param Torrents $torrent 单个种子对象
      * @return void
      */
     final protected static function notify(Sites $sites, Torrents $torrent): void
