@@ -3,10 +3,12 @@
 namespace Iyuu\Spider\Command;
 
 use Iyuu\Spider\Api\SiteModel;
+use Iyuu\Spider\Application;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
+use Iyuu\Spider\Utils;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -64,11 +66,17 @@ class SpiderCommand extends Command
         if (empty($config)) {
             throw new RuntimeException('本地配置为空');
         }
+
+        $_config = new Config($config);
+        $_params = new Params($params);
         //服务器配置
         $siteModel = SiteModel::make($site);
+        if (Utils::isLinuxOs() && $input->getOption('daemon')) {
+            return $this->startApplication($_config, $siteModel, $_params);
+        }
 
         //构造爬虫实例
-        $sites = Factory::create(new Config($config), $siteModel, new Params($params));
+        $sites = Factory::create($_config, $siteModel, $_params);
         $output->writeln("爬取站点 开始 ----->>> $site");
         switch ($type) {
             case 'rss':
@@ -85,6 +93,31 @@ class SpiderCommand extends Command
         }
         // 指令输出
         $output->writeln("爬取站点 结束 ----->>> $site");
+        return self::SUCCESS;
+    }
+
+    /**
+     * 守护进程
+     * @param Config $config
+     * @param SiteModel $siteModel
+     * @param Params $params
+     * @return int
+     */
+    protected function startApplication(Config $config, SiteModel $siteModel, Params $params): int
+    {
+        $conf = Application::buildConfig($siteModel->site);
+        Application::initWorker($conf);
+        $_config = [
+            'count' => $config->get('count', 5),
+            'reloadable' => false,
+            'handler' => Application::class,
+            'constructor' => [
+                'config' => $config,
+                'siteModel' => $siteModel,
+                'params' => $params,
+            ],
+        ];
+        worker_start($siteModel->site, $_config);
         return self::SUCCESS;
     }
 }

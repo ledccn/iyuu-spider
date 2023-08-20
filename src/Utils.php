@@ -19,6 +19,15 @@ class Utils
     }
 
     /**
+     * 判断linux操作系统
+     * @return bool
+     */
+    public static function isLinuxOs(): bool
+    {
+        return DIRECTORY_SEPARATOR === '/';
+    }
+
+    /**
      * 转换成易读的容量格式(包含小数)
      * @param float|int $bytes 字节
      * @param string $delimiter 分隔符 [&nbsp; | <br />]
