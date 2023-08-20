@@ -25,7 +25,7 @@ class Install
         static::installByRelation();
         //种子观察者
         $source = 'config/torrent_observer.php';
-        $dest = config_path($source);
+        $dest = base_path($source);
         if (!is_file($dest)) {
             copy(__DIR__ . "/$source", $dest);
             echo "Create {$dest}" . PHP_EOL;
