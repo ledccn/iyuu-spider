@@ -62,11 +62,7 @@ class Application
             $page = $this->sites->nextPage();
             try {
                 $uri = ($this->sites)->pageBuilder($page);
-                $list = $this->sites->process($uri);
-                if ($list->isEmpty()) {
-                    $this->incrEmptyList(7);
-                    sleep(mt_rand(5, 10));
-                }
+                $this->sites->process($uri);
             } catch (Throwable $throwable) {
                 if ($throwable instanceof EmptyListException) {
                     $this->incrEmptyList(7);
