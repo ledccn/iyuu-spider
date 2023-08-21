@@ -84,6 +84,8 @@ class SpiderClient
             }
         }
 
+        var_dump($res);
+        sleep(mt_rand(5, 10));
         $err_msg = $this->formatErrorMessage($res);
         throw new RuntimeException('查重失败：' . $err_msg);
     }
@@ -128,6 +130,7 @@ class SpiderClient
             if (200 === $code) {
                 // 种子特征码上报成功
                 echo '种子特征码上报成功。' . $msg . PHP_EOL . PHP_EOL;
+                return;
             } else {
                 echo "-----远端服务器无响应，请稍后再试。" . PHP_EOL;
                 echo '-----错误消息：' . $msg . PHP_EOL . PHP_EOL;
@@ -136,6 +139,8 @@ class SpiderClient
             }
         }
 
+        var_dump($res);
+        sleep(mt_rand(5, 10));
         $err_msg = $this->formatErrorMessage($res);
         throw new RuntimeException('特征码上报失败：' . $err_msg);
     }
