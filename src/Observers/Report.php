@@ -184,6 +184,10 @@ class Report implements Observer
         $decoder = Torrents::$decoder;
         if (class_exists($decoder) && is_a($decoder, Reseed::class, true)) {
             $data = $decoder::reseed($metadata);
+            if (empty($data)) {
+                throw new RuntimeException('种子元数据解码错误');
+            }
+
             $client = static::getSpiderClient();
             $client->createTorrent($sites->getSiteModel()->site, $torrent, $data);
         } else {
