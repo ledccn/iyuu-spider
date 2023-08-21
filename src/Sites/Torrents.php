@@ -10,16 +10,23 @@ use Throwable;
 
 /**
  * 种子数据结构
- * @property int id 种子ID
- * @property string h1 主标题
- * @property string title 副标题
- * @property string details 详情页
- * @property string download 下载页
- * @property string filename 文件名
- * @property string type 促销类型
+ * @property int $id 种子ID
+ * @property string $h1 主标题
+ * @property string $title 副标题
+ * @property string $details 详情页
+ * @property string $download 下载页
+ * @property string $filename 文件名
+ * @property string $type 促销类型
+ * @property ?int $group_id 种子分组ID（特有字段：海豚、海报、皮等）
  */
 class Torrents extends DataStruct
 {
+    /**
+     * 默认的种子解码器
+     * - 实现契约 \Iyuu\Spider\Contract\Reseed::class
+     * @var string
+     */
+    public static string $decoder = "\\db\\Bencode";
     /**
      * 观察者
      * @var Observer[]

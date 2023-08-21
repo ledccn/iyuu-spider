@@ -74,6 +74,15 @@ class Application
     }
 
     /**
+     * 当前进程worker实例
+     * @return Worker|null
+     */
+    public static function getWorker(): ?Worker
+    {
+        return static::$worker;
+    }
+
+    /**
      * 子进程退出时回调函数
      * @return void
      */

@@ -3,28 +3,55 @@
 namespace Iyuu\Spider\Observers;
 
 use InvalidArgumentException;
+use Iyuu\Spider\Api\SpiderClient;
 use Iyuu\Spider\Contract\Observer;
+use Iyuu\Spider\Contract\Reseed;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Utils;
+use RuntimeException;
 use support\Log;
 use Throwable;
 
 /**
  * 示例：一个观察者
+ * - 计算种子特征码并上报
  */
 class Report implements Observer
 {
+    /**
+     * 上报客户端
+     * @var SpiderClient|null
+     */
+    protected static ?SpiderClient $spiderClient = null;
+
+    /**
+     * 获取爬虫上报客户端
+     * @return SpiderClient
+     */
+    public static function getSpiderClient(): SpiderClient
+    {
+        if (!static::$spiderClient) {
+            static::$spiderClient = new SpiderClient(getenv('IYUU_TOKEN') ?: '', getenv('IYUU_SECRET') ?: '');
+        }
+        return static::$spiderClient;
+    }
+
+    /**
+     * @param Sites $sites
+     * @param Torrents $torrent
+     * @return void
+     */
     public static function update(Sites $sites, Torrents $torrent): void
     {
-        if (!class_exists("\\db\\Bencode")) {
+        //存在解码器 && 实现契约
+        if (!(class_exists(Torrents::$decoder) && is_a(Torrents::$decoder, Reseed::class, true))) {
             return;
         }
         if (!$sites->getParams()->daemon) {
             Utils::echo(sprintf('站点：%s | 页码：%s', $sites->getParams()->site, $sites->currentPage()));
         }
         //print_r($torrent->toArray());
-
         try {
             //1. 控制台打印
             self::step1_echoTitle($sites, $torrent);
@@ -34,21 +61,21 @@ class Report implements Observer
             self::step3_beforeSiteLimit($sites, $torrent);
             //4. 查重
             self::step4_find($sites, $torrent);
-            //5. 查找本地种子文件
+            //5. 获取种子元数据
             if (self::step5_existsTorrentFile($sites, $torrent)) {
                 //5.1 读取本地种子文件
                 $metadata = '';
             } else {
-                //6. 下载种子
-                $metadata = false;
+                //5.2 下载种子
+                $metadata = $sites->download($torrent->download);
             }
-            //7. 检查种子元数据
+            //6. 检查种子元数据
             self::step7_checkTorrentMetadata($sites, $torrent, $metadata);
-            //8. 上报种子元数据
+            //7. 上报种子元数据
             self::step8_pushTorrentInfo($sites, $torrent, $metadata);
-            //9. 保存种子元数据
+            //8. 保存种子元数据
             self::step9_saveTorrentFile($sites, $torrent, $metadata);
-            //10. 后置操作：流量控制等
+            //9. 后置操作：流量控制等
             self::step10_after($sites, $torrent);
         } catch (Throwable $throwable) {
             Log::error('[种子观察者]异常：' . $throwable->getMessage(), $torrent->toArray());
@@ -104,7 +131,10 @@ class Report implements Observer
      * @return void
      */
     private static function step4_find(Sites $sites, Torrents $torrent): void
-    {}
+    {
+        $client = static::getSpiderClient();
+        $client->findTorrent($sites->getSiteModel()->site, $torrent->id);
+    }
 
     /**
      * 查找本地种子文件
@@ -136,7 +166,11 @@ class Report implements Observer
      * @return void
      */
     private static function step7_checkTorrentMetadata(Sites $sites, Torrents $torrent, bool|string $metadata): void
-    {}
+    {
+        if (is_bool($metadata) || empty($metadata)) {
+            throw new RuntimeException('种子元数据为空');
+        }
+    }
 
     /**
      * 上报种子元数据
@@ -146,7 +180,16 @@ class Report implements Observer
      * @return void
      */
     private static function step8_pushTorrentInfo(Sites $sites, Torrents $torrent, string $metadata): void
-    {}
+    {
+        $decoder = Torrents::$decoder;
+        if (class_exists($decoder) && is_a($decoder, Reseed::class, true)) {
+            $data = $decoder::reseed($metadata);
+            $client = static::getSpiderClient();
+            $client->createTorrent($sites->getSiteModel()->site, $torrent, $data);
+        } else {
+            throw new RuntimeException('默认的种子解码器不存在或未实现契约');
+        }
+    }
 
     /**
      * 保存种子元数据到文件中
