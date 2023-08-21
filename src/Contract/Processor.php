@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Contract;
 
+use Iyuu\Spider\Exceptions\EmptyListException;
 use think\Collection;
 
 /**
@@ -13,6 +14,7 @@ interface Processor
 {
     /**
      * @return Collection
+     * @throws EmptyListException
      */
     public function process(): Collection;
 }

@@ -6,6 +6,7 @@ use DOMDocument;
 use Exception;
 use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\ProcessorXml;
+use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Support\Selector;
@@ -25,6 +26,7 @@ class Parser extends Sites implements ProcessorXml
     /**
      * @param string $path
      * @return Collection
+     * @throws EmptyListException
      */
     public function process(string $path = ''): Collection
     {
@@ -34,7 +36,7 @@ class Parser extends Sites implements ProcessorXml
         $html = $this->requestHtml($url);
         $list = Selector::select($html, "//*[@class='torrentname']");
         if (empty($list)) {
-            throw new RuntimeException('页面解析失败');
+            throw new EmptyListException('页面解析失败');
         }
         $rs = [];
         foreach ($list as $v) {

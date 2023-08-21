@@ -4,6 +4,7 @@ namespace Iyuu\Spider;
 
 use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
+use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
@@ -67,6 +68,10 @@ class Application
                     sleep(mt_rand(5, 10));
                 }
             } catch (Throwable $throwable) {
+                if ($throwable instanceof EmptyListException) {
+                    $this->incrEmptyList(7);
+                    sleep(mt_rand(5, 10));
+                }
             }
         } while ($page < $endPage);
 
