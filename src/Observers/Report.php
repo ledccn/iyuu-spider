@@ -68,7 +68,7 @@ class Report implements Observer
                 $metadata = '';
             } else {
                 //5.2 下载种子
-                $metadata = $sites->download($torrent->download);
+                $metadata = $sites->download($torrent);
             }
             //6. 检查种子元数据
             self::step7_checkTorrentMetadata($sites, $torrent, $metadata);
