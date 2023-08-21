@@ -2,9 +2,11 @@
 
 namespace Iyuu\Spider\Traits;
 
+use Iyuu\Spider\Application;
 use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Params;
 use Iyuu\Spider\Utils;
+use support\Log;
 
 /**
  * 站点分页组件
@@ -47,6 +49,7 @@ trait SitePagination
         $current_page = $this->currentPage();
         $next_page = $current_page + $step;
         $sitePageFile = $this->sitePageFilename();
+        Log::debug($this->getParams()->begin . '进程' . Application::getWorker()->id . ' 页码：' . $next_page);
         file_put_contents($sitePageFile, $next_page);
         return $retCurrent ? $current_page : $next_page;
     }
@@ -67,7 +70,7 @@ trait SitePagination
     protected function getStartPage(): int
     {
         $page = $this->getParams()->begin;
-        return is_numeric($page) ? (int)$page : $this->beginPage;
+        return ctype_digit($page) ? (int)$page : $this->beginPage;
     }
 
     /**

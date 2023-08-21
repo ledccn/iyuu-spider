@@ -70,10 +70,12 @@ class Application
             }
         } while ($page < $endPage);
 
-        if ($this->sites->getParams()->action && $endPage && ($page > $endPage)) {
-            $this->stopMasterProcess(static::$worker);
-        } else {
-            self::stopAll();
+        if ($this->sites->getParams()->action) {
+            if ($endPage && ($page > $endPage)) {
+                $this->stopMasterProcess(static::$worker);
+            } else {
+                self::stopAll();
+            }
         }
     }
 
@@ -117,7 +119,6 @@ class Application
      */
     public function onWorkerStop(): void
     {
-        echo '【进程退出onWorkerStop】' . __METHOD__ . PHP_EOL;
     }
 
     /**
