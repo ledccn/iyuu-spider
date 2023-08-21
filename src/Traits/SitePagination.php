@@ -49,7 +49,7 @@ trait SitePagination
         $current_page = $this->currentPage();
         $next_page = $current_page + $step;
         $sitePageFile = $this->sitePageFilename();
-        Log::debug($this->getParams()->begin . '进程' . Application::getWorker()->id . ' 页码：' . $next_page);
+        Log::debug($this->getParams()->site . '进程' . Application::getWorker()->id . ' 页码：' . $next_page);
         file_put_contents($sitePageFile, $next_page);
         return $retCurrent ? $current_page : $next_page;
     }
