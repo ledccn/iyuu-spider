@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Traits;
 
+use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Params;
 use Iyuu\Spider\Utils;
 
@@ -56,7 +57,7 @@ trait SitePagination
     private function sitePageFilename(): string
     {
         $site = $this->getParams()->site;
-        return runtime_path("/page/$site.page");
+        return Helper::sitePageFilename($site);
     }
 
     /**

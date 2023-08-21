@@ -169,6 +169,7 @@ class Application
      */
     final public static function buildConfig(string $site): array
     {
+        Helper::deletePageFilename($site);
         return [
             //PHP配置
             'error_reporting' => E_ALL,
