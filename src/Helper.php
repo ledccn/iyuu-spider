@@ -36,7 +36,10 @@ class Helper
     {
         clearstatcache();
         $file = static::sitePageFilename($site);
-        return !is_file($file) || unlink($file);
+        if (is_file($file)) {
+            return unlink($file);
+        }
+        return true;
     }
 
     /**
@@ -48,6 +51,9 @@ class Helper
     {
         clearstatcache();
         $file = static::siteEmptyListFilename($site);
-        return !is_file($file) || unlink($file);
+        if (is_file($file)) {
+            return unlink($file);
+        }
+        return true;
     }
 }

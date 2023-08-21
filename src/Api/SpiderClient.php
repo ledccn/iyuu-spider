@@ -135,7 +135,7 @@ class SpiderClient
             throw new ServerErrorHttpException('-----错误消息：' . $msg . PHP_EOL);
         }
 
-        echo '种子特征码上报成功。' . $msg . PHP_EOL . PHP_EOL;
+        echo $site . '种子特征码上报成功。' . $msg . PHP_EOL . PHP_EOL;
     }
 
     /**
