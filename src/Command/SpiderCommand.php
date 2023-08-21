@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Application;
 use Iyuu\Spider\Contract\ProcessorXml;
+use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
@@ -49,6 +50,7 @@ class SpiderCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
+     * @throws EmptyListException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
