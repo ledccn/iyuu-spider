@@ -36,7 +36,7 @@ class Parser extends Sites implements ProcessorXml
         $html = $this->requestHtml($url);
         $list = Selector::select($html, "//*[@class='torrentname']");
         if (empty($list)) {
-            throw new EmptyListException('页面解析失败');
+            throw new EmptyListException('页面解析失败A');
         }
         $rs = [];
         foreach ($list as $v) {
@@ -95,8 +95,7 @@ class Parser extends Sites implements ProcessorXml
         }
 
         if (empty($rs)) {
-            //页面解析失败
-            return new Collection([]);
+            throw new EmptyListException('页面解析失败B');
         }
         return Torrents::toCollection($rs, $this);
     }
