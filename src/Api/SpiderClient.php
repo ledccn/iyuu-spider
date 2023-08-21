@@ -65,7 +65,8 @@ class SpiderClient
         ];
         $res = $this->curl->get(static::API_SPIDER_FIND, $data);
         if ($res->isSuccess()) {
-            $response = json_encode($res->response, true);
+            $response = json_decode($res->response, true);
+            //var_dump($response);
             $code = $response['code'] ?? -1;
             $msg = $response['msg'] ?? '缺失错误信息';
             switch (true) {
@@ -120,7 +121,8 @@ class SpiderClient
 
         $res = $this->curl->post(static::API_SPIDER_CREATE, $data);
         if ($res->isSuccess()) {
-            $response = json_encode($res->response, true);
+            $response = json_decode($res->response, true);
+            //var_dump($response);
             $code = $response['code'] ?? -1;
             $msg = $response['msg'] ?? '缺失错误信息';
             if (200 === $code) {

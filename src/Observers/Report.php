@@ -46,6 +46,7 @@ class Report implements Observer
     {
         //存在解码器 && 实现契约
         if (!(class_exists(Torrents::$decoder) && is_a(Torrents::$decoder, Reseed::class, true))) {
+            //echo '不存在解码器 || 未实现契约' . PHP_EOL;
             return;
         }
         if (!$sites->getParams()->daemon) {
@@ -78,7 +79,7 @@ class Report implements Observer
             //9. 后置操作：流量控制等
             self::step10_after($sites, $torrent);
         } catch (Throwable $throwable) {
-            Log::error('[种子观察者]异常：' . $throwable->getMessage(), $torrent->toArray());
+            //Log::error('[种子观察者]异常：' . $throwable->getMessage(), $torrent->toArray());
         }
     }
 
