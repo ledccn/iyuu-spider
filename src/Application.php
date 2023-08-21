@@ -88,6 +88,7 @@ class Application
      */
     public function onWorkerStop(): void
     {
+        echo '【进程退出onWorkerStop】' . __METHOD__ . PHP_EOL;
     }
 
     /**
