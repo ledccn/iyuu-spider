@@ -61,15 +61,44 @@ class Application
             $page = $this->sites->nextPage();
             try {
                 $uri = ($this->sites)->pageBuilder($page);
-                $this->sites->process($uri);
+                $list = $this->sites->process($uri);
+                if ($list->isEmpty()) {
+                    $this->incrEmptyList(7);
+                    sleep(mt_rand(5, 10));
+                }
             } catch (Throwable $throwable) {
             }
         } while ($page < $endPage);
 
         if ($this->sites->getParams()->action && $endPage && ($page > $endPage)) {
-            self::stopMasterProcess(static::$worker);
+            $this->stopMasterProcess(static::$worker);
         } else {
             self::stopAll();
+        }
+    }
+
+    /**
+     * 累加空列表的次数
+     * - 超过X次后停止主进程
+     * @param int $maxEmptyNumber
+     * @return void
+     */
+    protected function incrEmptyList(int $maxEmptyNumber = 5): void
+    {
+        clearstatcache();
+        $site = $this->sites->getSiteModel()->site;
+        $filename = Helper::siteEmptyListFilename($site);
+        if (is_file($filename)) {
+            $number = (int)file_get_contents($filename);
+        } else {
+            $number = 0;
+        }
+        $number++;
+
+        if ($maxEmptyNumber < $number) {
+            $this->stopMasterProcess(static::$worker);
+        } else {
+            file_put_contents($filename, $number);
         }
     }
 
@@ -97,7 +126,7 @@ class Application
      */
     public function stopMasterProcess(Worker $worker): void
     {
-        $start_file = $this->sites->getParams()->site;
+        $start_file = $this->sites->getSiteModel()->site;
         $master_pid = is_file($worker::$pidFile) ? (int)file_get_contents($worker::$pidFile) : 0;
         $master_pid && posix_kill($master_pid, SIGINT);
         // Timeout.
@@ -171,6 +200,8 @@ class Application
     final public static function buildConfig(string $site): array
     {
         Helper::deletePageFilename($site);
+        Helper::deleteEmptyListFilename($site);
+
         return [
             //PHP配置
             'error_reporting' => E_ALL,
