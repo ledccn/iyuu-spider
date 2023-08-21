@@ -2,6 +2,8 @@
 
 namespace Iyuu\Spider\Api;
 
+use Iyuu\Spider\Exceptions\BadRequestException;
+use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Sites\Torrents;
 use Ledc\Curl\Curl;
 use RuntimeException;
@@ -56,6 +58,7 @@ class SpiderClient
      * @param string $site 站点名称
      * @param int $torrent_id 种子ID
      * @return void
+     * @throws BadRequestException|ServerErrorHttpException
      */
     public function findTorrent(string $site, int $torrent_id): void
     {
@@ -64,30 +67,25 @@ class SpiderClient
             'torrent_id' => $torrent_id,
         ];
         $res = $this->curl->get(static::API_SPIDER_FIND, $data);
-        if ($res->isSuccess()) {
-            $response = json_decode($res->response, true);
-            //var_dump($response);
-            $code = $response['code'] ?? -1;
-            $msg = $response['msg'] ?? '缺失错误信息';
-            switch (true) {
-                case (200 === $code):   // 服务器不存在该种子
-                    // 1.种子符合下载条件
-                    return;
-                case (202 === $code):   // 服务器存在该种子
-                    throw new RuntimeException('-----种子：在远端服务器已存在！！！');
-                case (405 === $code):   // 服务器不存在该种子，但是任务被领取，锁定300秒后才能再次被领取。
-                    throw new RuntimeException('-----种子：' . $msg);
-                default:
-                    echo "-----远端服务器无响应，请稍后再试。" . PHP_EOL;
-                    sleep(5);
-                    throw new RuntimeException('-----错误消息：' . $msg . PHP_EOL);
-            }
+        if (!$res->isSuccess()) {
+            var_dump($res);
+            $err_msg = $this->formatErrorMessage($res);
+            throw new BadRequestException('查重失败：' . $err_msg);
         }
 
-        var_dump($res);
-        sleep(mt_rand(5, 10));
-        $err_msg = $this->formatErrorMessage($res);
-        throw new RuntimeException('查重失败：' . $err_msg);
+        $response = json_decode($res->response, true);
+        //var_dump($response);
+        $code = $response['code'] ?? -1;
+        $msg = $response['msg'] ?? '缺失错误信息';
+        if (200 === $code) {
+            // 服务器不存在该种子，符合下载条件
+            return;
+        }
+        throw match ($code) {
+            202 => new RuntimeException('-----种子：在远端服务器已存在！！！'),
+            405 => new RuntimeException('-----种子：' . $msg),
+            default => new ServerErrorHttpException('-----错误消息：' . $msg . PHP_EOL),
+        };
     }
 
     /**
@@ -96,6 +94,7 @@ class SpiderClient
      * @param Torrents $torrent
      * @param array $data
      * @return void
+     * @throws ServerErrorHttpException|BadRequestException
      */
     public function createTorrent(string $site, Torrents $torrent, array $data): void
     {
@@ -122,27 +121,21 @@ class SpiderClient
         $data['sign'] = $signature;
 
         $res = $this->curl->post(static::API_SPIDER_CREATE, $data);
-        if ($res->isSuccess()) {
-            $response = json_decode($res->response, true);
-            //var_dump($response);
-            $code = $response['code'] ?? -1;
-            $msg = $response['msg'] ?? '缺失错误信息';
-            if (200 === $code) {
-                // 种子特征码上报成功
-                echo '种子特征码上报成功。' . $msg . PHP_EOL . PHP_EOL;
-                return;
-            } else {
-                echo "-----远端服务器无响应，请稍后再试。" . PHP_EOL;
-                echo '-----错误消息：' . $msg . PHP_EOL . PHP_EOL;
-                sleep(mt_rand(5, 10));
-                throw new RuntimeException('-----错误消息：' . $msg . PHP_EOL);
-            }
+        if (!$res->isSuccess()) {
+            var_dump($res);
+            $err_msg = $this->formatErrorMessage($res);
+            throw new BadRequestException('特征码上报失败：' . $err_msg);
         }
 
-        var_dump($res);
-        sleep(mt_rand(5, 10));
-        $err_msg = $this->formatErrorMessage($res);
-        throw new RuntimeException('特征码上报失败：' . $err_msg);
+        $response = json_decode($res->response, true);
+        //var_dump($response);
+        $code = $response['code'] ?? -1;
+        $msg = $response['msg'] ?? '缺失错误信息';
+        if (200 !== $code) {
+            throw new ServerErrorHttpException('-----错误消息：' . $msg . PHP_EOL);
+        }
+
+        echo '种子特征码上报成功。' . $msg . PHP_EOL . PHP_EOL;
     }
 
     /**

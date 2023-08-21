@@ -6,6 +6,10 @@ use InvalidArgumentException;
 use Iyuu\Spider\Api\SpiderClient;
 use Iyuu\Spider\Contract\Observer;
 use Iyuu\Spider\Contract\Reseed;
+use Iyuu\Spider\Exceptions\BadRequestException;
+use Iyuu\Spider\Exceptions\EmptyMetadataException;
+use Iyuu\Spider\Exceptions\ParseMetadataException;
+use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Utils;
@@ -59,29 +63,28 @@ class Report implements Observer
             //2. 检查种子id
             self::step2_checkTorrentId($sites, $torrent);
             //3. 前置操作：流量控制等
-            self::step3_beforeSiteLimit($sites, $torrent);
+            self::step3_before($sites, $torrent);
             //4. 查重
             self::step4_find($sites, $torrent);
             //5. 获取种子元数据
-            if (self::step5_existsTorrentFile($sites, $torrent)) {
-                //5.1 读取本地种子文件
-                $metadata = '';
-            } else {
-                //5.2 下载种子
-                $metadata = $sites->download($torrent);
-            }
+            $metadata = self::step5_downloadTorrentFile($sites, $torrent);
             //6. 检查种子元数据
-            self::step7_checkTorrentMetadata($sites, $torrent, $metadata);
+            self::step6_checkTorrentMetadata($sites, $torrent, $metadata);
             //7. 上报种子元数据
-            self::step8_pushTorrentInfo($sites, $torrent, $metadata);
+            self::step7_pushTorrentInfo($sites, $torrent, $metadata);
             //8. 保存种子元数据
-            self::step9_saveTorrentFile($sites, $torrent, $metadata);
+            self::step8_saveTorrentFile($sites, $torrent, $metadata);
             //9. 后置操作：流量控制等
-            self::step10_after($sites, $torrent);
+            self::step9_after($sites, $torrent);
         } catch (Throwable $throwable) {
-            //Log::error('[种子观察者]异常：' . $throwable->getMessage(), $torrent->toArray());
+            $message = '[种子观察者]异常 ----->>> ' . $throwable->getMessage();
             if (!$sites->getParams()->daemon) {
-                echo '[种子观察者]异常 ----->>> ' . $throwable->getMessage() . PHP_EOL;
+                echo $message . PHP_EOL;
+            }
+
+            //记录日志
+            if ($throwable instanceof BadRequestException) {
+                Log::error($message, $torrent->toArray());
             }
         }
     }
@@ -125,7 +128,7 @@ class Report implements Observer
      * @param Torrents $torrent
      * @return void
      */
-    private static function step3_beforeSiteLimit(Sites $sites, Torrents $torrent): void
+    private static function step3_before(Sites $sites, Torrents $torrent): void
     {}
 
     /**
@@ -133,6 +136,8 @@ class Report implements Observer
      * @param Sites $sites
      * @param Torrents $torrent
      * @return void
+     * @throws BadRequestException
+     * @throws ServerErrorHttpException
      */
     private static function step4_find(Sites $sites, Torrents $torrent): void
     {
@@ -141,25 +146,14 @@ class Report implements Observer
     }
 
     /**
-     * 查找本地种子文件
-     * @param Sites $sites
-     * @param Torrents $torrent
-     * @return bool
-     */
-    private static function step5_existsTorrentFile(Sites $sites, Torrents $torrent): bool
-    {
-        return false;
-    }
-
-    /**
      * 下载种子
      * @param Sites $sites
      * @param Torrents $torrent
      * @return bool|string
      */
-    private static function step6_downloadTorrentFile(Sites $sites, Torrents $torrent): bool|string
+    private static function step5_downloadTorrentFile(Sites $sites, Torrents $torrent): bool|string
     {
-        return true;
+        return $sites->download($torrent);
     }
 
     /**
@@ -169,10 +163,10 @@ class Report implements Observer
      * @param bool|string $metadata
      * @return void
      */
-    private static function step7_checkTorrentMetadata(Sites $sites, Torrents $torrent, bool|string $metadata): void
+    private static function step6_checkTorrentMetadata(Sites $sites, Torrents $torrent, bool|string $metadata): void
     {
         if (is_bool($metadata) || empty($metadata)) {
-            throw new RuntimeException('种子元数据为空');
+            throw new EmptyMetadataException('种子元数据为空');
         }
     }
 
@@ -182,14 +176,16 @@ class Report implements Observer
      * @param Torrents $torrent
      * @param string $metadata
      * @return void
+     * @throws BadRequestException
+     * @throws ServerErrorHttpException
      */
-    private static function step8_pushTorrentInfo(Sites $sites, Torrents $torrent, string $metadata): void
+    private static function step7_pushTorrentInfo(Sites $sites, Torrents $torrent, string $metadata): void
     {
         $decoder = Torrents::$decoder;
         if (class_exists($decoder) && is_a($decoder, Reseed::class, true)) {
             $data = $decoder::reseed($metadata);
             if (empty($data)) {
-                throw new RuntimeException('种子元数据解码错误');
+                throw new ParseMetadataException('种子元数据解码错误');
             }
 
             $client = static::getSpiderClient();
@@ -206,7 +202,7 @@ class Report implements Observer
      * @param string $metadata
      * @return void
      */
-    private static function step9_saveTorrentFile(Sites $sites, Torrents $torrent, string $metadata): void
+    private static function step8_saveTorrentFile(Sites $sites, Torrents $torrent, string $metadata): void
     {}
 
     /**
@@ -215,7 +211,7 @@ class Report implements Observer
      * @param Torrents $torrent
      * @return void
      */
-    private static function step10_after(Sites $sites, Torrents $torrent): void
+    private static function step9_after(Sites $sites, Torrents $torrent): void
     {
     }
 }
