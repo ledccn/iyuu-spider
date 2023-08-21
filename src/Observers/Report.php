@@ -80,6 +80,9 @@ class Report implements Observer
             self::step10_after($sites, $torrent);
         } catch (Throwable $throwable) {
             //Log::error('[种子观察者]异常：' . $throwable->getMessage(), $torrent->toArray());
+            if (!$sites->getParams()->daemon) {
+                echo '[种子观察者]异常 ----->>> ' . $throwable->getMessage() . PHP_EOL;
+            }
         }
     }
 
