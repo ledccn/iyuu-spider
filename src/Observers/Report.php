@@ -84,6 +84,7 @@ class Report implements Observer
 
             //记录日志
             if ($throwable instanceof BadRequestException) {
+                sleep(mt_rand(5, 10));
                 Log::error($message, $torrent->toArray());
             }
         }
