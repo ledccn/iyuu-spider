@@ -4,9 +4,9 @@ namespace Iyuu\Spider\Frameworks\NexusPHP;
 
 use DOMDocument;
 use Exception;
-use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Exceptions\EmptyListException;
+use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Support\Selector;
@@ -125,7 +125,7 @@ class Parser extends Sites implements ProcessorXml
      */
     public function requestHtml(string $url = ''): string
     {
-        $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon( 20, 30)->setSslVerify();
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon( 20, 30)->setSslVerify();
         $config = $this->getConfig();
         $curl->setCookies($config->get('cookies'));
         $curl->get($url);
@@ -149,7 +149,7 @@ class Parser extends Sites implements ProcessorXml
     public function download($args = null): string|bool|null
     {
         if ($args instanceof Torrents) {
-            $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon(30, 120)->setSslVerify();
+            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify();
             if ($args->isCookieRequired()) {
                 $curl->setCookies($this->getConfig()->get('cookies'));
             }
@@ -174,7 +174,7 @@ class Parser extends Sites implements ProcessorXml
         $host = $siteModel->getHost() . '/';
         $url = $host . ($path ?: $this->getDefaultXmlPath());
         //var_dump($url);
-        $curl = Curl::getInstance()->setUserAgent(Downloader::USER_AGENT)->setCommon(20, 30)->setSslVerify();
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
         $curl->get($url);
         if (!$curl->isSuccess()) {
             //var_dump($curl);

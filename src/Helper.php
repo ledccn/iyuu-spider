@@ -2,6 +2,8 @@
 
 namespace Iyuu\Spider;
 
+use Iyuu\Spider\Contract\Downloader;
+
 /**
  * 助手类
  */
@@ -15,6 +17,22 @@ class Helper
     public static function sitePageFilename(string $site): string
     {
         return runtime_path("/page/$site.page");
+    }
+
+    /**
+     * 读取或保存user-agent
+     * @param string $userAgent
+     * @return string
+     */
+    public static function selfUserAgent(string $userAgent = ''): string
+    {
+        $filename = runtime_path('user-agent.local');
+        if ($userAgent) {
+            file_put_contents($filename, $userAgent);
+        } else {
+            $userAgent = file_get_contents($filename) ?: Downloader::USER_AGENT;
+        }
+        return $userAgent;
     }
 
     /**
