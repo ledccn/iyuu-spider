@@ -30,6 +30,11 @@ class Helper
         if ($userAgent) {
             file_put_contents($filename, $userAgent);
         } else {
+            clearstatcache();
+            if (!is_file($filename)) {
+                return Downloader::USER_AGENT;
+            }
+
             $userAgent = file_get_contents($filename) ?: Downloader::USER_AGENT;
         }
         return $userAgent;
