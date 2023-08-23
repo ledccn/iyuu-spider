@@ -23,6 +23,19 @@ final class SiteModel extends DataStruct
     const SITES_JSON_FILE = 'sites.json';
 
     /**
+     * @param string $site
+     * @return self
+     */
+    final public static function make(string $site): self
+    {
+        $sites = self::getServerSites();
+        if (empty($sites[$site])) {
+            throw new RuntimeException('服务器配置为空');
+        }
+        return new self($sites[$site]);
+    }
+
+    /**
      * 从服务器获取全部站点
      * @return array
      */
@@ -43,19 +56,6 @@ final class SiteModel extends DataStruct
         }
 
         return $sites;
-    }
-
-    /**
-     * @param string $site
-     * @return self
-     */
-    final public static function make(string $site): self
-    {
-        $sites = self::getServerSites();
-        if (empty($sites[$site])) {
-            throw new RuntimeException('服务器配置为空');
-        }
-        return new self($sites[$site]);
     }
 
     /**

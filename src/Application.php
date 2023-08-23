@@ -50,107 +50,12 @@ class Application
     }
 
     /**
-     * 子进程启动时回调函数
-     * @param Worker $worker
-     * @return void
-     */
-    public function onWorkerStart(Worker $worker): void
-    {
-        static::$worker = $worker;
-        $endPage = (int)$this->sites->getParams()->end ?: 0;
-        do {
-            $page = $this->sites->nextPage();
-            try {
-                $uri = ($this->sites)->pageBuilder($page);
-                $this->sites->process($uri);
-            } catch (Throwable $throwable) {
-                if ($throwable instanceof EmptyListException) {
-                    $this->incrEmptyList(7);
-                    sleep(mt_rand(5, 10));
-                }
-            }
-        } while ($page < $endPage);
-
-        if ($this->sites->getParams()->action) {
-            if ($endPage && ($page > $endPage)) {
-                $this->stopMasterProcess(static::$worker);
-            } else {
-                self::stopAll();
-            }
-        }
-    }
-
-    /**
-     * 累加空列表的次数
-     * - 超过X次后停止主进程
-     * @param int $maxEmptyNumber
-     * @return void
-     */
-    protected function incrEmptyList(int $maxEmptyNumber = 5): void
-    {
-        clearstatcache();
-        $site = $this->sites->getSiteModel()->site;
-        $filename = Helper::siteEmptyListFilename($site);
-        if (is_file($filename)) {
-            $number = (int)file_get_contents($filename);
-        } else {
-            $number = 0;
-        }
-        $number++;
-
-        if ($maxEmptyNumber < $number) {
-            $this->stopMasterProcess(static::$worker);
-        } else {
-            file_put_contents($filename, $number);
-        }
-    }
-
-    /**
      * 当前进程worker实例
      * @return Worker|null
      */
     public static function getWorker(): ?Worker
     {
         return static::$worker;
-    }
-
-    /**
-     * 子进程退出时回调函数
-     * @return void
-     */
-    public function onWorkerStop(): void
-    {
-    }
-
-    /**
-     * 停止master进程
-     * @param Worker $worker
-     */
-    public function stopMasterProcess(Worker $worker): void
-    {
-        $start_file = $this->sites->getSiteModel()->site;
-        $master_pid = is_file($worker::$pidFile) ? (int)file_get_contents($worker::$pidFile) : 0;
-        $master_pid && posix_kill($master_pid, SIGINT);
-        // Timeout.
-        $timeout = $worker::$stopTimeout + 3;
-        $start_time = time();
-        // Check master process is still alive?
-        while (1) {
-            $master_is_alive = $master_pid && posix_kill($master_pid, 0);
-            if ($master_is_alive) {
-                // Timeout?
-                if (time() - $start_time >= $timeout) {
-                    $worker::log("Workerman Spider [$start_file] stop fail");
-                    exit;
-                }
-                // Waiting moment.
-                usleep(10000);
-                continue;
-            }
-            // Stop success.
-            $worker::log("Workerman Spider [$start_file] stop success");
-            exit(0);
-        }
     }
 
     /**
@@ -229,6 +134,93 @@ class Application
     }
 
     /**
+     * 子进程启动时回调函数
+     * @param Worker $worker
+     * @return void
+     */
+    public function onWorkerStart(Worker $worker): void
+    {
+        static::$worker = $worker;
+        $endPage = (int)$this->sites->getParams()->end ?: 0;
+        do {
+            $page = $this->sites->nextPage();
+            try {
+                $uri = ($this->sites)->pageBuilder($page);
+                $this->sites->process($uri);
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof EmptyListException) {
+                    $this->incrEmptyList(7);
+                    sleep(mt_rand(5, 10));
+                }
+            }
+        } while ($page < $endPage);
+
+        if ($this->sites->getParams()->action) {
+            if ($endPage && ($page > $endPage)) {
+                $this->stopMasterProcess(static::$worker);
+            } else {
+                self::stopAll();
+            }
+        }
+    }
+
+    /**
+     * 累加空列表的次数
+     * - 超过X次后停止主进程
+     * @param int $maxEmptyNumber
+     * @return void
+     */
+    protected function incrEmptyList(int $maxEmptyNumber = 5): void
+    {
+        clearstatcache();
+        $site = $this->sites->getSiteModel()->site;
+        $filename = Helper::siteEmptyListFilename($site);
+        if (is_file($filename)) {
+            $number = (int)file_get_contents($filename);
+        } else {
+            $number = 0;
+        }
+        $number++;
+
+        if ($maxEmptyNumber < $number) {
+            $this->stopMasterProcess(static::$worker);
+        } else {
+            file_put_contents($filename, $number);
+        }
+    }
+
+    /**
+     * 停止master进程
+     * @param Worker $worker
+     */
+    public function stopMasterProcess(Worker $worker): void
+    {
+        $start_file = $this->sites->getSiteModel()->site;
+        $master_pid = is_file($worker::$pidFile) ? (int)file_get_contents($worker::$pidFile) : 0;
+        $master_pid && posix_kill($master_pid, SIGINT);
+        // Timeout.
+        $timeout = $worker::$stopTimeout + 3;
+        $start_time = time();
+        // Check master process is still alive?
+        while (1) {
+            $master_is_alive = $master_pid && posix_kill($master_pid, 0);
+            if ($master_is_alive) {
+                // Timeout?
+                if (time() - $start_time >= $timeout) {
+                    $worker::log("Workerman Spider [$start_file] stop fail");
+                    exit;
+                }
+                // Waiting moment.
+                usleep(10000);
+                continue;
+            }
+            // Stop success.
+            $worker::log("Workerman Spider [$start_file] stop success");
+            exit(0);
+        }
+    }
+
+    /**
      * 退出进程
      * @param int $code
      * @param string $log
@@ -237,5 +229,13 @@ class Application
     final public static function stopAll(int $code = 0, string $log = ''): void
     {
         Worker::stopAll($code, $log);
+    }
+
+    /**
+     * 子进程退出时回调函数
+     * @return void
+     */
+    public function onWorkerStop(): void
+    {
     }
 }

@@ -27,15 +27,6 @@ class Install
     }
 
     /**
-     * Uninstall
-     * @return void
-     */
-    public static function uninstall(): void
-    {
-        self::uninstallByRelation();
-    }
-
-    /**
      * installByRelation
      * @return void
      */
@@ -52,6 +43,15 @@ class Install
             copy_dir(__DIR__ . "/$source", base_path() . "/$dest", true);
             echo "Create {$dest}" . PHP_EOL;
         }
+    }
+
+    /**
+     * Uninstall
+     * @return void
+     */
+    public static function uninstall(): void
+    {
+        self::uninstallByRelation();
     }
 
     /**

@@ -89,6 +89,15 @@ class SpiderClient
     }
 
     /**
+     * @param \Curl\Curl $curl
+     * @return string
+     */
+    public function formatErrorMessage(\Curl\Curl $curl): string
+    {
+        return $curl->error_message ?? '服务器无响应';
+    }
+
+    /**
      * 创建
      * @param string $site
      * @param Torrents $torrent
@@ -145,14 +154,5 @@ class SpiderClient
     protected function isAdmin(): bool
     {
         return $this->secret && false === str_starts_with($this->secret, 'IYUU');
-    }
-
-    /**
-     * @param \Curl\Curl $curl
-     * @return string
-     */
-    public function formatErrorMessage(\Curl\Curl $curl): string
-    {
-        return $curl->error_message ?? '服务器无响应';
     }
 }

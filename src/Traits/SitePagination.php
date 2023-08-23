@@ -19,6 +19,21 @@ trait SitePagination
     protected int $beginPage = 0;
 
     /**
+     * @param int $step 步进
+     * @param bool $retCurrent 返回当前页
+     * @return int
+     */
+    public function nextPage(int $step = 1, bool $retCurrent = true): int
+    {
+        $current_page = $this->currentPage();
+        $next_page = $current_page + $step;
+        $sitePageFile = $this->sitePageFilename();
+        Log::debug($this->getParams()->site . '进程' . Application::getWorker()->id . ' 页码：' . $next_page);
+        file_put_contents($sitePageFile, $next_page);
+        return $retCurrent ? $current_page : $next_page;
+    }
+
+    /**
      * @return int
      */
     public function currentPage(): int
@@ -40,21 +55,6 @@ trait SitePagination
     }
 
     /**
-     * @param int $step 步进
-     * @param bool $retCurrent 返回当前页
-     * @return int
-     */
-    public function nextPage(int $step = 1, bool $retCurrent = true): int
-    {
-        $current_page = $this->currentPage();
-        $next_page = $current_page + $step;
-        $sitePageFile = $this->sitePageFilename();
-        Log::debug($this->getParams()->site . '进程' . Application::getWorker()->id . ' 页码：' . $next_page);
-        file_put_contents($sitePageFile, $next_page);
-        return $retCurrent ? $current_page : $next_page;
-    }
-
-    /**
      * @return string
      */
     private function sitePageFilename(): string
@@ -62,6 +62,12 @@ trait SitePagination
         $site = $this->getParams()->site;
         return Helper::sitePageFilename($site);
     }
+
+    /**
+     * 获取启动参数
+     * @return Params
+     */
+    abstract public function getParams(): Params;
 
     /**
      * 获取开始页码
@@ -72,10 +78,4 @@ trait SitePagination
         $page = $this->getParams()->begin;
         return ctype_digit($page) ? (int)$page : $this->beginPage;
     }
-
-    /**
-     * 获取启动参数
-     * @return Params
-     */
-    abstract public function getParams(): Params;
 }

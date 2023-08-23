@@ -6,7 +6,6 @@ use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\Processor;
-use Iyuu\Spider\Observers\Report;
 
 /**
  * 站点基础类

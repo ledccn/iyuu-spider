@@ -24,6 +24,19 @@ class Context
     protected static null|StdClass $object = null;
 
     /**
+     * @param string|null $key
+     * @return mixed
+     */
+    public static function get(string $key = null): mixed
+    {
+        $obj = static::getObject();
+        if ($key === null) {
+            return $obj;
+        }
+        return $obj->$key ?? null;
+    }
+
+    /**
      * @return StdClass
      */
     protected static function getObject(): StdClass
@@ -45,19 +58,6 @@ class Context
     protected static function getKey(): ?StdClass
     {
         return static::$object;
-    }
-
-    /**
-     * @param string|null $key
-     * @return mixed
-     */
-    public static function get(string $key = null): mixed
-    {
-        $obj = static::getObject();
-        if ($key === null) {
-            return $obj;
-        }
-        return $obj->$key ?? null;
     }
 
     /**

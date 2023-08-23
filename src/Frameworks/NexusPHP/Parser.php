@@ -125,7 +125,7 @@ class Parser extends Sites implements ProcessorXml
      */
     public function requestHtml(string $url = ''): string
     {
-        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon( 20, 30)->setSslVerify();
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
         $config = $this->getConfig();
         $curl->setCookies($config->get('cookies'));
         $curl->get($url);

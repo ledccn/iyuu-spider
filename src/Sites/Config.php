@@ -25,50 +25,11 @@ class Config implements ArrayAccess
     }
 
     /**
-     * 转数组
-     * @return array
+     * @return string
      */
-    final public function toArray(): array
+    public function __toString()
     {
-        return $this->config;
-    }
-
-    /**
-     * 获取配置项参数【支持 . 分割符】
-     * @param string|null $key
-     * @param null $default
-     * @return mixed
-     */
-    final public function get(?string $key = null, $default = null): mixed
-    {
-        if (null === $key) {
-            return $this->config;
-        }
-        $keys = explode('.', $key);
-        $value = $this->config;
-        foreach ($keys as $index) {
-            if (!isset($value[$index])) {
-                return $default;
-            }
-            $value = $value[$index];
-        }
-        return $value;
-    }
-
-    /**
-     * 设置 $this->data
-     * @param string|null $key
-     * @param mixed $value
-     * @return self
-     */
-    final public function set(?string $key, mixed $value): self
-    {
-        if ($key === null) {
-            $this->config[] = $value;
-        } else {
-            $this->config[$key] = $value;
-        }
-        return $this;
+        return $this->toJson();
     }
 
     /**
@@ -82,11 +43,12 @@ class Config implements ArrayAccess
     }
 
     /**
-     * @return string
+     * 转数组
+     * @return array
      */
-    public function __toString()
+    final public function toArray(): array
     {
-        return $this->toJson();
+        return $this->config;
     }
 
     /**
@@ -128,7 +90,46 @@ class Config implements ArrayAccess
         $this->set($key, $value);
     }
 
+    /**
+     * 获取配置项参数【支持 . 分割符】
+     * @param string|null $key
+     * @param null $default
+     * @return mixed
+     */
+    final public function get(?string $key = null, $default = null): mixed
+    {
+        if (null === $key) {
+            return $this->config;
+        }
+        $keys = explode('.', $key);
+        $value = $this->config;
+        foreach ($keys as $index) {
+            if (!isset($value[$index])) {
+                return $default;
+            }
+            $value = $value[$index];
+        }
+        return $value;
+    }
+
+    /**
+     * 设置 $this->data
+     * @param string|null $key
+     * @param mixed $value
+     * @return self
+     */
+    final public function set(?string $key, mixed $value): self
+    {
+        if ($key === null) {
+            $this->config[] = $value;
+        } else {
+            $this->config[$key] = $value;
+        }
+        return $this;
+    }
+
     // ArrayAccess
+
     #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {

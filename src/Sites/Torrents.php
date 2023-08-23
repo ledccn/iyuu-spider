@@ -39,24 +39,6 @@ class Torrents extends DataStruct
     protected bool $cookieRequired = true;
 
     /**
-     * 设置下载种子是否需要cookie
-     * @param bool $cookieRequired 下载种子是否需要cookie
-     */
-    public function setCookieRequired(bool $cookieRequired): void
-    {
-        $this->cookieRequired = $cookieRequired;
-    }
-
-    /**
-     * 判断下载种子是否需要cookie
-     * @return bool
-     */
-    public function isCookieRequired(): bool
-    {
-        return $this->cookieRequired;
-    }
-
-    /**
      * 数据转换为种子对象
      * @param array $items 二维的种子数组
      * @param Sites $sites 站点对象
@@ -77,6 +59,25 @@ class Torrents extends DataStruct
     }
 
     /**
+     * 通知观察者
+     * @param Sites $sites 站点对象
+     * @param Torrents $torrent 单个种子对象
+     * @return void
+     */
+    final protected static function notify(Sites $sites, Torrents $torrent): void
+    {
+        if (empty(self::$observers)) {
+            return;
+        }
+        foreach (self::$observers as $observer) {
+            try {
+                $observer::update($sites, $torrent);
+            } catch (Throwable $throwable) {
+            }
+        }
+    }
+
+    /**
      * 添加观察者
      * @param string $observer
      * @return void
@@ -93,20 +94,20 @@ class Torrents extends DataStruct
     }
 
     /**
-     * 通知观察者
-     * @param Sites $sites 站点对象
-     * @param Torrents $torrent 单个种子对象
-     * @return void
+     * 判断下载种子是否需要cookie
+     * @return bool
      */
-    final protected static function notify(Sites $sites, Torrents $torrent): void
+    public function isCookieRequired(): bool
     {
-        if (empty(self::$observers)) {
-            return;
-        }
-        foreach (self::$observers as $observer) {
-            try {
-                $observer::update($sites, $torrent);
-            } catch (Throwable $throwable) {}
-        }
+        return $this->cookieRequired;
+    }
+
+    /**
+     * 设置下载种子是否需要cookie
+     * @param bool $cookieRequired 下载种子是否需要cookie
+     */
+    public function setCookieRequired(bool $cookieRequired): void
+    {
+        $this->cookieRequired = $cookieRequired;
     }
 }

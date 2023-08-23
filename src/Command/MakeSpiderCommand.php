@@ -58,6 +58,23 @@ class MakeSpiderCommand extends Command
     }
 
     /**
+     * @param string $name
+     * @return string
+     */
+    protected function nameToNamespace(string $name): string
+    {
+        // make:spider 不支持子目录、不支持-_
+        $namespace = str_replace(['\\', '/', '-', '_'], '', strtolower($name));
+        if (is_scalar($namespace) && ctype_alnum($namespace)) {
+            if (preg_match('/^[0-9].*$/', $namespace, $matches)) {
+                return 'site' . $namespace;
+            }
+            return $namespace;
+        }
+        throw  new InvalidArgumentException('无效的站点名称');
+    }
+
+    /**
      * @param string $site 站点标识
      * @param string $name 转换后的目录名
      * @param string $namespace 服务提供者的命名空间
@@ -75,23 +92,6 @@ class MakeSpiderCommand extends Command
             $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
             file_put_contents($file, $file_content);
         }
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function nameToNamespace(string $name): string
-    {
-        // make:spider 不支持子目录、不支持-_
-        $namespace = str_replace(['\\', '/', '-', '_'], '', strtolower($name));
-        if (is_scalar($namespace) && ctype_alnum($namespace)) {
-            if (preg_match('/^[0-9].*$/', $namespace, $matches)) {
-                return 'site' . $namespace;
-            }
-            return $namespace;
-        }
-        throw  new InvalidArgumentException('无效的站点名称');
     }
 
     /**

@@ -30,18 +30,6 @@ class Report implements Observer
     protected static ?SpiderClient $spiderClient = null;
 
     /**
-     * 获取爬虫上报客户端
-     * @return SpiderClient
-     */
-    public static function getSpiderClient(): SpiderClient
-    {
-        if (!static::$spiderClient) {
-            static::$spiderClient = new SpiderClient(getenv('IYUU_TOKEN') ?: '', getenv('IYUU_SECRET') ?: '');
-        }
-        return static::$spiderClient;
-    }
-
-    /**
      * @param Sites $sites
      * @param Torrents $torrent
      * @return void
@@ -130,7 +118,8 @@ class Report implements Observer
      * @return void
      */
     private static function step3_before(Sites $sites, Torrents $torrent): void
-    {}
+    {
+    }
 
     /**
      * 查重
@@ -144,6 +133,18 @@ class Report implements Observer
     {
         $client = static::getSpiderClient();
         $client->findTorrent($sites->getSiteModel()->site, $torrent->id);
+    }
+
+    /**
+     * 获取爬虫上报客户端
+     * @return SpiderClient
+     */
+    public static function getSpiderClient(): SpiderClient
+    {
+        if (!static::$spiderClient) {
+            static::$spiderClient = new SpiderClient(getenv('IYUU_TOKEN') ?: '', getenv('IYUU_SECRET') ?: '');
+        }
+        return static::$spiderClient;
     }
 
     /**
@@ -204,7 +205,8 @@ class Report implements Observer
      * @return void
      */
     private static function step8_saveTorrentFile(Sites $sites, Torrents $torrent, string $metadata): void
-    {}
+    {
+    }
 
     /**
      * 后置操作：流量控制
