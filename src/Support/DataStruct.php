@@ -136,7 +136,6 @@ class DataStruct implements ArrayAccess, Arrayable, Jsonable
         return $this;
     }
 
-    // ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetExists($offset): bool
     {
@@ -161,13 +160,11 @@ class DataStruct implements ArrayAccess, Arrayable, Jsonable
         unset($this->data[$offset]);
     }
 
-    //Countable
     public function count(): int
     {
         return count($this->data);
     }
 
-    //IteratorAggregate
     #[\ReturnTypeWillChange]
     public function getIterator(): Traversable
     {

@@ -71,10 +71,9 @@ class Utils
      */
     public static function echo(mixed $data): void
     {
-        $hr = PHP_EOL . '******************************' . date('Y-m-d H:i:s') . PHP_EOL;
-        $str = $hr;
+        $str = PHP_EOL . '******************************' . date('Y-m-d H:i:s') . PHP_EOL;
         $content = match (true) {
-            is_bool($data) => $data ? 'true' : false,
+            is_bool($data) => $data ? 'true' : 'false',
             is_null($data) => 'null',
             default => print_r($data, true)
         };
