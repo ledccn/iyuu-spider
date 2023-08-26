@@ -29,6 +29,7 @@
     "ext-libxml": "*",
     "ext-dom": "*",
     "ledc/curl": "^1.1",
+    "ledc/pipeline": "*",
     "guzzlehttp/guzzle": "^7.7"
   },
   "autoload": {
