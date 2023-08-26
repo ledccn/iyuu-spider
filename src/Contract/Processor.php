@@ -14,6 +14,7 @@ interface Processor
 {
     /**
      * 契约方法
+     * - 解析页面数据，生成数据集对象
      * @return Collection
      * @throws EmptyListException
      */

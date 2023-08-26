@@ -6,6 +6,9 @@ use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\Processor;
+use Iyuu\Spider\Helper;
+use Ledc\Curl\Curl;
+use RuntimeException;
 
 /**
  * 站点基础类
@@ -75,5 +78,50 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     final public function getParams(): Params
     {
         return $this->params;
+    }
+
+    /**
+     * 请求html页面
+     * @param string $url
+     * @return string
+     */
+    public function requestHtml(string $url = ''): string
+    {
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $config = $this->getConfig();
+        $curl->setCookies($config->get('cookies'));
+        $curl->get($url);
+        if (!$curl->isSuccess()) {
+            $errmsg = $curl->error_message ?? '网络不通或cookies过期';
+            throw new RuntimeException($errmsg);
+        }
+        $html = $curl->response;
+        if (is_bool($html) || empty($html)) {
+            throw new RuntimeException('curl_exec返回错误');
+        }
+        return $html;
+    }
+
+    /**
+     * 下载种子
+     * - cookie下载或rss下载
+     * @param null $args
+     * @return string|bool|null
+     */
+    public function download($args = null): string|bool|null
+    {
+        if ($args instanceof Torrents) {
+            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify();
+            if ($args->isCookieRequired()) {
+                $curl->setCookies($this->getConfig()->get('cookies'));
+            }
+            $curl->get($args->download);
+            if (!$curl->isSuccess()) {
+                $errmsg = $curl->error_message ?? '网络不通或cookie过期';
+                throw new RuntimeException($errmsg);
+            }
+            return $curl->response;
+        }
+        return '';
     }
 }
