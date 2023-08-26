@@ -39,7 +39,7 @@ class RequestCreate implements Pipeline
             $client = SpiderClient::getInstance();
             $client->createTorrent($sites->getSiteModel()->site, $torrent, $data);
 
-            return $next($next);
+            return $next($payload);
         } else {
             throw new RuntimeException('默认的种子解码器不存在或未实现契约');
         }
