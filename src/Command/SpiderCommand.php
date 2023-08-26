@@ -24,6 +24,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SpiderCommand extends Command
 {
     /**
+     * 启动时允许的动作命令
+     */
+    const ACTION_LIST = ['start', 'stop', 'restart', 'reload', 'status', 'connections'];
+    /**
      * @var string
      */
     protected static $defaultName = 'spider';
@@ -38,7 +42,7 @@ class SpiderCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('site', InputArgument::REQUIRED, '站点名称')
-            ->addArgument('action', InputArgument::OPTIONAL, 'start|stop|restart|reload|status|connections', '')
+            ->addArgument('action', InputArgument::OPTIONAL, implode('|', self::ACTION_LIST), '')
             ->addOption('type', null, InputOption::VALUE_OPTIONAL, '爬虫类型:cookie,rss', 'cookie')
             ->addOption('uri', null, InputOption::VALUE_OPTIONAL, '统一资源标识符', '')
             ->addOption('begin', null, InputOption::VALUE_OPTIONAL, '开始页码', '')
@@ -56,25 +60,27 @@ class SpiderCommand extends Command
     {
         // 接收参数
         $site = $input->getArgument('site');
+        $action = $input->getArgument('action');
         // 接收选项
         $type = $input->getOption('type');
         if (!in_array($type, ['cookie', 'rss'])) {
             throw new RuntimeException('未定义的爬虫类型：' . $type);
         }
 
-        //爬取参数
         $params = array_merge($input->getArguments(), $input->getOptions());
-        //本地配置
         $config = config('sites.' . $site);
         if (empty($config)) {
             throw new RuntimeException('本地配置为空');
         }
 
+        //本地配置
         $_config = new Config($config);
+        //爬取参数
         $_params = new Params($params);
         //服务器配置
         $siteModel = SiteModel::make($site);
-        if ($input->getArgument('action')) {
+
+        if (in_array($action, self::ACTION_LIST)) {
             if (Utils::isWindowsOs()) {
                 throw new InvalidArgumentException('常驻内存仅支持Linux');
             }

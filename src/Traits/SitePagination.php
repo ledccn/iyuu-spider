@@ -19,6 +19,7 @@ trait SitePagination
     protected int $beginPage = 0;
 
     /**
+     * 下一页
      * @param int $step 步进
      * @param bool $retCurrent 返回当前页
      * @return int
@@ -34,10 +35,14 @@ trait SitePagination
     }
 
     /**
+     * 当前页
      * @return int
      */
     public function currentPage(): int
     {
+        if (empty($this->getParams()->action)) {
+            return $this->beginPage;
+        }
         clearstatcache();
         $sitePageFile = $this->sitePageFilename();
         if (is_file($sitePageFile)) {
