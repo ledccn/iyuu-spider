@@ -3,6 +3,7 @@
 namespace Iyuu\Spider\Command;
 
 use InvalidArgumentException;
+use Iyuu\Spider\Frameworks\Frameworks;
 use Iyuu\Spider\Sites\Factory;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -30,7 +31,7 @@ class MakeSpiderCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, '解析器服务提供者的类名');
-        $this->addArgument('type', InputArgument::OPTIONAL, '解析器的框架类型', '');
+        $this->addArgument('type', InputArgument::OPTIONAL, '解析器的框架类型', '0');
     }
 
     /**
@@ -42,6 +43,9 @@ class MakeSpiderCommand extends Command
     {
         $site = $name = trim($input->getArgument('name'));
         $type = $input->getArgument('type');
+        if (!array_key_exists($type, Frameworks::TYPE)) {
+            throw new RuntimeException('框架类型不存在，仅支持：' . implode(',', array_keys(Frameworks::TYPE)));
+        }
 
         $output->writeln("Make spider handler $name");
 
@@ -108,12 +112,14 @@ class MakeSpiderCommand extends Command
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
+
+        $use = Frameworks::TYPE[$type] ?? Frameworks::TYPE['0'];
         $content = <<<EOF
 <?php
 
 namespace $namespace;
 
-use Iyuu\Spider\Frameworks\NexusPHP\Parser;
+use $use;
 
 /**
  * 爬虫句柄

@@ -14,6 +14,18 @@ use support\Log;
 trait SitePagination
 {
     /**
+     * 获取启动参数
+     * @return Params
+     */
+    abstract public function getParams(): Params;
+
+    /**
+     * 种子列表页，第一页默认页码
+     * @return int
+     */
+    abstract public function getBeginPage(): int;
+
+    /**
      * 下一页
      * @param int $step 步进
      * @param bool $retCurrent 返回当前页
@@ -36,7 +48,7 @@ trait SitePagination
     public function currentPage(): int
     {
         if (empty($this->getParams()->action)) {
-            return $this->getBeginPage();
+            return $this->getParams()->begin ?: $this->getStartPage();
         }
         clearstatcache();
         $sitePageFile = $this->sitePageFilename();
@@ -55,27 +67,6 @@ trait SitePagination
     }
 
     /**
-     * @return string
-     */
-    private function sitePageFilename(): string
-    {
-        $site = $this->getParams()->site;
-        return Helper::sitePageFilename($site);
-    }
-
-    /**
-     * 获取启动参数
-     * @return Params
-     */
-    abstract public function getParams(): Params;
-
-    /**
-     * 种子列表页，第一页默认页码
-     * @return int
-     */
-    abstract public function getBeginPage(): int;
-
-    /**
      * 获取开始页码
      * @return int
      */
@@ -83,5 +74,14 @@ trait SitePagination
     {
         $page = $this->getParams()->begin;
         return ctype_digit($page) ? (int)$page : $this->getBeginPage();
+    }
+
+    /**
+     * @return string
+     */
+    private function sitePageFilename(): string
+    {
+        $site = $this->getParams()->site;
+        return Helper::sitePageFilename($site);
     }
 }
