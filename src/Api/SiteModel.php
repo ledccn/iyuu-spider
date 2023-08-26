@@ -50,7 +50,7 @@ final class SiteModel extends DataStruct
                 throw new RuntimeException('读取站点配置失败！' . json_last_error_msg());
             }
         } else {
-            $client = new Client(getenv('IYUU_TOKEN') ?: '');
+            $client = Client::getInstance();
             $sites = $client->getSites();
             self::saveToJson($sites);
         }
