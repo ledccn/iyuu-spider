@@ -18,6 +18,7 @@ use Throwable;
  * @property string $filename 文件名
  * @property string $type 促销类型
  * @property ?int $group_id 种子分组ID（特有字段：海豚、海报、皮等）
+ * @property ?string $metadata 种子元数据
  */
 class Torrents extends DataStruct
 {

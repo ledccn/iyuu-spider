@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Api;
 
+use Iyuu\Spider\Container;
 use Iyuu\Spider\Exceptions\BadRequestException;
 use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Sites\Torrents;
@@ -51,6 +52,15 @@ class SpiderClient
         $this->secret = $secret;
         $this->curl = new Curl();
         $this->curl->setCommon(8, 8);
+    }
+
+    /**
+     * 获取爬虫客户端（单例）
+     * @return self
+     */
+    public static function getInstance(): self
+    {
+        return Container::pull(static::class, [getenv('IYUU_TOKEN') ?: '', getenv('IYUU_SECRET') ?: '']);
     }
 
     /**
