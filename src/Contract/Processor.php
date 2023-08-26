@@ -13,6 +13,7 @@ use think\Collection;
 interface Processor
 {
     /**
+     * 契约方法
      * @return Collection
      * @throws EmptyListException
      */

@@ -10,6 +10,7 @@ use think\Collection;
 interface ProcessorXml
 {
     /**
+     * 契约方法
      * @return Collection
      */
     public function processXml(): Collection;

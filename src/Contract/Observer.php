@@ -11,6 +11,7 @@ use Iyuu\Spider\Sites\Torrents;
 interface Observer
 {
     /**
+     * 契约方法
      * @param Sites $sites
      * @param Torrents $torrent
      * @return void
