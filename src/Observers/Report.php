@@ -57,14 +57,9 @@ class Report implements Observer
         //print_r($torrent->toArray());
         try {
             $pipeline = new Pipeline(Container::getInstance());
-            $result = $pipeline->send(new Payload($sites, $torrent))
+            $pipeline->send(new Payload($sites, $torrent))
                 ->through(static::$pipelines)
-                ->then(function () {
-                    return '完成爬取！！';
-                });
-            if (!$sites->getParams()->daemon) {
-                echo $result . PHP_EOL;
-            }
+                ->thenReturn();
         } catch (Throwable $throwable) {
             $message = $sites->getParams()->site . '[种子观察者]异常 ----->>> ' . $throwable->getMessage();
             if (!$sites->getParams()->daemon) {
