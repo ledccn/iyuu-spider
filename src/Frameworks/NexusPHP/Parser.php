@@ -5,14 +5,13 @@ namespace Iyuu\Spider\Frameworks\NexusPHP;
 use DOMDocument;
 use Exception;
 use Iyuu\Spider\Contract\ProcessorXml;
+use Iyuu\Spider\Exceptions\DownloadHtmlException;
 use Iyuu\Spider\Exceptions\EmptyListException;
-use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Support\Selector;
 use Iyuu\Spider\Traits\SitePagination;
 use Iyuu\Spider\Utils;
-use Ledc\Curl\Curl;
 use RuntimeException;
 use think\Collection;
 
@@ -34,7 +33,7 @@ class Parser extends Sites implements ProcessorXml
     /**
      * @param string $path
      * @return Collection
-     * @throws EmptyListException
+     * @throws EmptyListException|DownloadHtmlException
      */
     public function process(string $path = ''): Collection
     {
@@ -130,6 +129,7 @@ class Parser extends Sites implements ProcessorXml
      * 解析xml页面
      * @param string $path
      * @return Collection
+     * @throws DownloadHtmlException
      */
     public function processXml(string $path = ''): Collection
     {
@@ -137,17 +137,7 @@ class Parser extends Sites implements ProcessorXml
         $host = $siteModel->getHost() . '/';
         $url = $host . ($path ?: $this->getDefaultXmlPath());
         //var_dump($url);
-        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
-        $curl->get($url);
-        if (!$curl->isSuccess()) {
-            //var_dump($curl);
-            $errmsg = $curl->error_message ?? '网络不通或cookie过期';
-            throw new RuntimeException($errmsg);
-        }
-        $xml = $curl->response;
-        if (is_bool($xml) || empty($xml)) {
-            throw new RuntimeException('curl_exec返回错误');
-        }
+        $xml = $this->requestXml($url);
         try {
             $items = [];
             $dom = new DOMDocument();

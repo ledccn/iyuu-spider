@@ -3,6 +3,7 @@
 namespace Iyuu\Spider\Pipeline\Report;
 
 use Iyuu\Spider\Contract\Pipeline;
+use Iyuu\Spider\Exceptions\DownloadTorrentException;
 use Iyuu\Spider\Exceptions\EmptyMetadataException;
 use Iyuu\Spider\Sites\Payload;
 
@@ -15,7 +16,7 @@ class Download implements Pipeline
      * @param Payload $payload
      * @param callable $next
      * @return mixed
-     * @throws EmptyMetadataException
+     * @throws EmptyMetadataException|DownloadTorrentException
      */
     public static function process(Payload $payload, callable $next): mixed
     {

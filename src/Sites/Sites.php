@@ -88,7 +88,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      * @return string
      * @throws DownloadHtmlException
      */
-    public function requestHtml(string $url = ''): string
+    public function requestHtml(string $url): string
     {
         $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
         $config = $this->getConfig();
@@ -96,13 +96,34 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
         $curl->get($url);
         if (!$curl->isSuccess()) {
             $errmsg = $curl->error_message ?? '网络不通或cookies过期';
-            throw new DownloadHtmlException('页面下载失败：' . $errmsg);
+            throw new DownloadHtmlException('下载HTML失败：' . $errmsg);
         }
         $html = $curl->response;
         if (is_bool($html) || empty($html)) {
             throw new RuntimeException('curl_exec返回错误');
         }
         return $html;
+    }
+
+    /**
+     * 请求Xml页面
+     * @param string $url
+     * @return string
+     * @throws DownloadHtmlException
+     */
+    public function requestXml(string $url): string
+    {
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $curl->get($url);
+        if (!$curl->isSuccess()) {
+            $errmsg = $curl->error_message ?? '网络不通或流控';
+            throw new DownloadHtmlException('下载XML失败：' . $errmsg);
+        }
+        $xml = $curl->response;
+        if (is_bool($xml) || empty($xml)) {
+            throw new RuntimeException('curl_exec返回错误');
+        }
+        return $xml;
     }
 
     /**
