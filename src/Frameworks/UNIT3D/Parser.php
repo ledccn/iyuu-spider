@@ -108,6 +108,7 @@ class Parser extends Sites implements ProcessorXml
             // 清空 libxml 错误缓冲
             libxml_clear_errors();
             $elements = $dom->getElementsByTagName('item');
+            /** @var DOMDocument $item */
             foreach ($elements as $item) {
                 $node = $item->getElementsByTagName('description')->item(0);
                 if ($node !== null) {

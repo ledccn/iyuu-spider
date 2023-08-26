@@ -147,6 +147,7 @@ class Parser extends Sites implements ProcessorXml
             // 清空 libxml 错误缓冲
             libxml_clear_errors();
             $elements = $dom->getElementsByTagName('item');
+            /** @var DOMDocument $item */
             foreach ($elements as $item) {
                 $this->filterNexusPHP($item);
                 $link = $item->getElementsByTagName('enclosure')->item(0) != null ? $item->getElementsByTagName('enclosure')->item(0)->getAttribute('url') : $item->getElementsByTagName('link')->item(0)->nodeValue;
