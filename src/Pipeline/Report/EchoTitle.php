@@ -18,6 +18,7 @@ class EchoTitle implements Pipeline
     public static function process(Payload $payload, callable $next): mixed
     {
         $sites = $payload->sites;
+        $torrent = $payload->torrent;
         if (!$sites->getParams()->daemon) {
             $body = [
                 '主标题：' . $torrent->h1 ?? '',
