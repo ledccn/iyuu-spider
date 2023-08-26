@@ -122,22 +122,20 @@ class Parser extends Sites implements ProcessorXml
                 $regex = '#/torrent/download/(\d+)\.([A-Za-z0-9]+)#i';
                 if (preg_match($regex, $details, $matches)) {
                     $id = $matches[1];
-                } else {
-                    continue;
+                    $torrent['id'] = $id;
+                    $torrent['h1'] = $item->getElementsByTagName('title')->item(0)->nodeValue;
+                    $torrent['title'] = '';
+                    $torrent['details'] = $details;
+                    $torrent['download'] = $link;
+                    $torrent['rsskey'] = $matches[2];
+                    $torrent['filename'] = $id . '.torrent';
+                    $torrent['type'] = 0;   // 免费0
+                    $torrent['time'] = date("Y-m-d H:i:s", $time);
+                    //$torrent['size'] = Utils::dataSize($length);
+                    //$torrent['length'] = $length;
+                    $torrent['guid'] = $guid;
+                    $items[] = $torrent;
                 }
-                $torrent['id'] = $id;
-                $torrent['h1'] = $item->getElementsByTagName('title')->item(0)->nodeValue;
-                $torrent['title'] = '';
-                $torrent['details'] = $details;
-                $torrent['download'] = $link;
-                $torrent['rsskey'] = $matches[2];
-                $torrent['filename'] = $id . '.torrent';
-                $torrent['type'] = 0;   // 免费0
-                $torrent['time'] = date("Y-m-d H:i:s", $time);
-                //$torrent['size'] = Utils::dataSize($length);
-                //$torrent['length'] = $length;
-                $torrent['guid'] = $guid;
-                $items[] = $torrent;
             }
             if (empty($items)) {
                 //页面解析失败
