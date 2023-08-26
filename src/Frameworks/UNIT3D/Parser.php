@@ -118,7 +118,7 @@ class Parser extends Sites implements ProcessorXml
                 $details = $link;
                 $time = strtotime($item->getElementsByTagName('pubDate')->item(0)->nodeValue);
                 // 提取id
-                $regex = $this->getRegex();
+                $regex = '#/torrent/download/(\d+)\.([A-Za-z0-9]+)#i';
                 if (preg_match($regex, $details, $matches)) {
                     $id = $matches[1];
                 } else {
