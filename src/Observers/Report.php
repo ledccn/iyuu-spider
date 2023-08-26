@@ -6,6 +6,7 @@ use Iyuu\Spider\Container;
 use Iyuu\Spider\Contract\Observer;
 use Iyuu\Spider\Contract\Reseed;
 use Iyuu\Spider\Exceptions\BadRequestException;
+use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Pipeline\Report\CheckTorrentId;
 use Iyuu\Spider\Pipeline\Report\Download;
 use Iyuu\Spider\Pipeline\Report\EchoTitle;
@@ -51,25 +52,30 @@ class Report implements Observer
             }
             return;
         }
-        if (!$sites->getParams()->daemon) {
-            Utils::echo(sprintf('站点：%s | 页码：%s', $sites->getParams()->site, $sites->currentPage()));
-        }
         //print_r($torrent->toArray());
         try {
+            ob_start();
+            Utils::echo(sprintf('站点：%s | 页码：%s', $sites->getParams()->site, $sites->currentPage()));
             $pipeline = new Pipeline(Container::getInstance());
             $pipeline->send(new Payload($sites, $torrent))
                 ->through(static::$pipelines)
                 ->thenReturn();
         } catch (Throwable $throwable) {
             $message = $sites->getParams()->site . '[种子观察者]异常 ----->>> ' . $throwable->getMessage();
-            if (!$sites->getParams()->daemon) {
-                echo $message . PHP_EOL;
-            }
+            echo $message . PHP_EOL;
 
             //记录日志
-            if ($throwable instanceof BadRequestException) {
+            if ($throwable instanceof BadRequestException ||
+                $throwable instanceof ServerErrorHttpException
+            ) {
+                $torrent->metadata = '';
                 Log::error($message, $torrent->toArray());
                 sleep(mt_rand(5, 10));
+            }
+        } finally {
+            $content = ob_get_clean();
+            if ($content && !$sites->getParams()->daemon) {
+                echo $content;
             }
         }
     }
