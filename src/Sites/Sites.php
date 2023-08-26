@@ -6,6 +6,8 @@ use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\PageUriBuilder;
 use Iyuu\Spider\Contract\Processor;
+use Iyuu\Spider\Exceptions\DownloadHtmlException;
+use Iyuu\Spider\Exceptions\DownloadTorrentException;
 use Iyuu\Spider\Helper;
 use Ledc\Curl\Curl;
 use RuntimeException;
@@ -84,6 +86,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      * 请求html页面
      * @param string $url
      * @return string
+     * @throws DownloadHtmlException
      */
     public function requestHtml(string $url = ''): string
     {
@@ -93,7 +96,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
         $curl->get($url);
         if (!$curl->isSuccess()) {
             $errmsg = $curl->error_message ?? '网络不通或cookies过期';
-            throw new RuntimeException('页面下载失败：' . $errmsg);
+            throw new DownloadHtmlException('页面下载失败：' . $errmsg);
         }
         $html = $curl->response;
         if (is_bool($html) || empty($html)) {
@@ -107,6 +110,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      * - cookie下载或rss下载
      * @param null $args
      * @return string|bool|null
+     * @throws DownloadTorrentException
      */
     public function download($args = null): string|bool|null
     {
@@ -118,7 +122,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
-                throw new RuntimeException('种子下载失败：' . $errmsg);
+                throw new DownloadTorrentException('种子下载失败：' . $errmsg);
             }
             return $curl->response;
         }

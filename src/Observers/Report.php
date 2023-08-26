@@ -6,6 +6,8 @@ use Iyuu\Spider\Container;
 use Iyuu\Spider\Contract\Observer;
 use Iyuu\Spider\Contract\Reseed;
 use Iyuu\Spider\Exceptions\BadRequestException;
+use Iyuu\Spider\Exceptions\DownloadHtmlException;
+use Iyuu\Spider\Exceptions\DownloadTorrentException;
 use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Pipeline\Report\CheckTorrentId;
 use Iyuu\Spider\Pipeline\Report\Download;
@@ -67,10 +69,13 @@ class Report implements Observer
 
             //记录日志
             if ($throwable instanceof BadRequestException ||
-                $throwable instanceof ServerErrorHttpException
+                $throwable instanceof ServerErrorHttpException ||
+                $throwable instanceof DownloadTorrentException ||
+                $throwable instanceof DownloadHtmlException
             ) {
                 $torrent->metadata = '';
                 Log::error($message, $torrent->toArray());
+                echo get_class($throwable) . ' 发生异常，休眠中...' . PHP_EOL;
                 sleep(mt_rand(5, 10));
             }
         } finally {
