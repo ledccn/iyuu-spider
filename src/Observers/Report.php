@@ -48,6 +48,7 @@ class Report implements Observer
         //存在解码器 && 实现契约
         if (!(class_exists(Torrents::$decoder) && is_a(Torrents::$decoder, Reseed::class, true))) {
             if (!$sites->getParams()->daemon) {
+                print_r($torrent->toArray());
                 echo '不存在解码器 || 未实现契约' . PHP_EOL;
             }
             return;
