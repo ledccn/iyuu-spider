@@ -91,6 +91,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     public function requestHtml(string $url): string
     {
         $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $this->setCurlProxy($curl);
         $config = $this->getConfig();
         $curl->setCookies($config->get('cookies'));
         $curl->get($url);
@@ -106,6 +107,21 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     }
 
     /**
+     * 设置代理服务器
+     * @param Curl $curl
+     * @return void
+     */
+    private function setCurlProxy(Curl $curl): void
+    {
+        if ($proxy = $this->getConfig()->get('curl_opt.proxy')) {
+            $curl->setOpt(CURLOPT_PROXY, $proxy);
+            if ($proxyAuth = $this->getConfig()->get('curl_opt.proxy_auth')) {
+                $curl->setOpt(CURLOPT_PROXYUSERPWD, $proxyAuth);
+            }
+        }
+    }
+
+    /**
      * 请求Xml页面
      * @param string $url
      * @return string
@@ -114,6 +130,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     public function requestXml(string $url): string
     {
         $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $this->setCurlProxy($curl);
         $curl->get($url);
         if (!$curl->isSuccess()) {
             $errmsg = $curl->error_message ?? '网络不通或流控';
@@ -137,6 +154,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     {
         if ($args instanceof Torrents) {
             $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify();
+            $this->setCurlProxy($curl);
             if ($args->isCookieRequired()) {
                 $curl->setCookies($this->getConfig()->get('cookies'));
             }
