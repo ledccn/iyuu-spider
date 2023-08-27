@@ -113,12 +113,9 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      */
     private function setCurlProxy(Curl $curl): void
     {
-        if ($proxy = $this->getConfig()->get('curl_opt.proxy')) {
-            $curl->setOpt(CURLOPT_PROXY, $proxy);
-            if ($proxyAuth = $this->getConfig()->get('curl_opt.proxy_auth')) {
-                $curl->setOpt(CURLOPT_PROXYUSERPWD, $proxyAuth);
-            }
-        }
+        $proxy = $this->getConfig()->get('curl_opt.proxy', '');
+        $proxyAuth = $this->getConfig()->get('curl_opt.proxy_auth', '');
+        $curl->setCurlProxy($proxy, $proxyAuth);
     }
 
     /**
