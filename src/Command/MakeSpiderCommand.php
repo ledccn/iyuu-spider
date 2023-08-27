@@ -3,6 +3,7 @@
 namespace Iyuu\Spider\Command;
 
 use InvalidArgumentException;
+use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Frameworks\Frameworks;
 use Iyuu\Spider\Sites\Factory;
 use RuntimeException;
@@ -57,8 +58,18 @@ class MakeSpiderCommand extends Command
         $namespace = Factory::getNamespace() . "\\$name";
         $this->editProvider($site, $name, $namespace);
         $this->createSpider($site, $name, $namespace, $file, $type);
+        $this->createAfter();
 
         return self::SUCCESS;
+    }
+
+    /**
+     * 创建成功之后执行
+     * @return void
+     */
+    protected function createAfter(): void
+    {
+        unlink(runtime_path(SiteModel::SITES_JSON_FILE));
     }
 
     /**
