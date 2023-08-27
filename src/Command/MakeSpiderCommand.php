@@ -93,7 +93,7 @@ class MakeSpiderCommand extends Command
 
             $file = Factory::getFilepath();
             $file_content = file_get_contents($file);
-            $file_content = preg_replace('/\];\/\/PROVIDER_END/', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
+            $file_content = preg_replace('#];//PROVIDER_END#', "    '$site' => \\$namespace\\" . Factory::DEFAULT_CLASSNAME . "::class,\n    ];//PROVIDER_END", $file_content);
             file_put_contents($file, $file_content);
         }
     }

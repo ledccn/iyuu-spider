@@ -48,7 +48,7 @@ trait SitePagination
     public function currentPage(): int
     {
         if (empty($this->getParams()->action)) {
-            return $this->getParams()->begin ?: $this->getStartPage();
+            return $this->getStartPage();
         }
         clearstatcache();
         $sitePageFile = $this->sitePageFilename();
