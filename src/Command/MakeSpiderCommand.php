@@ -23,7 +23,7 @@ class MakeSpiderCommand extends Command
     /**
      * @var string
      */
-    protected static $defaultDescription = 'Make spider handler';
+    protected static $defaultDescription = 'IYUU出品的命令行创建解析器';
 
     /**
      * @return void
