@@ -100,13 +100,16 @@ class Application
     }
 
     /**
-     * @param string $site 站点名称
+     * @param Params $params
      * @return void
      */
-    final public static function initMasterStop(string $site): void
+    final public static function initMasterStop(Params $params): void
     {
-        Helper::deletePageFilename($site);
-        Helper::deleteEmptyListFilename($site);
+        $site = $params->site;
+        if ('start' === $params->action) {
+            Helper::deletePageFilename($site);
+            Helper::deleteEmptyListFilename($site);
+        }
 
         Worker::$onMasterStop = function () use ($site) {
             Helper::deletePageFilename($site);

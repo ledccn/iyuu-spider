@@ -16,7 +16,6 @@ use Dotenv\Dotenv;
 use support\Log;
 use Webman\Bootstrap;
 use Webman\Config;
-use Webman\Util;
 
 $worker = $worker ?? null;
 
@@ -88,13 +87,5 @@ foreach (config('plugin', []) as $firm => $projects) {
         }
         /** @var Bootstrap $className */
         $className::start($worker);
-    }
-}
-
-$directory = base_path() . '/plugin';
-$paths = [config_path()];
-foreach (Util::scanDir($directory) as $path) {
-    if (is_dir($path = "$path/config")) {
-        $paths[] = $path;
     }
 }

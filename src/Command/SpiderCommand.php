@@ -118,7 +118,7 @@ class SpiderCommand extends Command
     protected function startApplication(Config $config, SiteModel $siteModel, Params $params): int
     {
         $conf = Application::buildConfig($params->site);
-        Application::initMasterStop($params->site);
+        Application::initMasterStop($params);
         Application::initWorker($conf, $params->daemon);
         $process_config = [
             'count' => $config->get('count', 5),
