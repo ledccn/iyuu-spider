@@ -28,6 +28,22 @@ class Utils
     }
 
     /**
+     * 把值转换为布尔型
+     * @param mixed $value 变量值
+     * @return boolean 格式化后的变量
+     */
+    public static function toBoolean(mixed $value): bool
+    {
+        return match (true) {
+            is_bool($value) => $value,
+            is_numeric($value) => $value > 0,
+            is_string($value) => in_array(strtolower($value), ['ok', 'true', 'success', 'on', 'yes', '(ok)', '(true)', '(success)', '(on)', '(yes)']),
+            is_array($value) => !empty($value),
+            default => (bool)$value,
+        };
+    }
+
+    /**
      * 转换成易读的容量格式(包含小数)
      * @param float|int $bytes 字节
      * @param string $delimiter 分隔符 [&nbsp; | <br />]
