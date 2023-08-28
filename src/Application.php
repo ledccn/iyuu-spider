@@ -100,15 +100,27 @@ class Application
     }
 
     /**
+     * @param string $site 站点名称
+     * @return void
+     */
+    final public static function initMasterStop(string $site): void
+    {
+        Helper::deletePageFilename($site);
+        Helper::deleteEmptyListFilename($site);
+
+        Worker::$onMasterStop = function () use ($site) {
+            Helper::deletePageFilename($site);
+            Helper::deleteEmptyListFilename($site);
+        };
+    }
+
+    /**
      * worker容器配置构造器
      * @param string $site 站点名称
      * @return array
      */
     final public static function buildConfig(string $site): array
     {
-        Helper::deletePageFilename($site);
-        Helper::deleteEmptyListFilename($site);
-
         return [
             //PHP配置
             'error_reporting' => E_ALL,
