@@ -66,6 +66,7 @@ class SpiderCommand extends Command
         if (!in_array($type, ['cookie', 'rss'])) {
             throw new RuntimeException('未定义的爬虫类型：' . $type);
         }
+        $uri = $input->getOption('uri');
 
         $params = array_merge($input->getArguments(), $input->getOptions());
         $config = config('sites.' . $site);
@@ -93,14 +94,14 @@ class SpiderCommand extends Command
         switch ($type) {
             case 'rss':
                 if ($sites instanceof ProcessorXml) {
-                    $sites->processXml();
+                    $sites->processXml($uri);
                 } else {
                     throw new RuntimeException(get_class($sites) . '未实现接口：' . ProcessorXml::class);
                 }
                 break;
             case 'cookie':
             default:
-                $sites->process();
+                $sites->process($uri);
                 break;
         }
         // 指令输出
