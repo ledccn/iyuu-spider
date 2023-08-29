@@ -25,6 +25,10 @@ enum Route: string
      * 种子RSS页面
      */
     case N4 = 'rss/13.{rsskey}';
+    /**
+     * 种子列表页
+     */
+    case N5 = 'special.php?incldead=0&page={page}';
 
     /**
      * 检查枚举名字
@@ -33,7 +37,7 @@ enum Route: string
      */
     public static function hasName(string $name): bool
     {
-        return in_array($name, array_column(self::cases(), 'name'));
+        return in_array(strtoupper($name), array_column(self::cases(), 'name'));
     }
 
     /**
@@ -43,6 +47,7 @@ enum Route: string
      */
     public static function getValue(string $name): string
     {
+        $name = strtoupper($name);
         $list = self::toArray();
         if (!array_key_exists($name, $list)) {
             throw new InvalidArgumentException('路由不存在');
