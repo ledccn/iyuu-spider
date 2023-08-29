@@ -28,6 +28,16 @@ class Utils
     }
 
     /**
+     * 布尔转字符串
+     * @param bool $value
+     * @return string
+     */
+    public static function booleanToString(bool $value): string
+    {
+        return $value ? 'true' : 'false';
+    }
+
+    /**
      * 把值转换为布尔型
      * @param mixed $value 变量值
      * @return boolean 格式化后的变量

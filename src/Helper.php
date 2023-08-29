@@ -4,6 +4,7 @@ namespace Iyuu\Spider;
 
 use Iyuu\Spider\Contract\Downloader;
 use Iyuu\Spider\Contract\Route;
+use Iyuu\Spider\Sites\Factory;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -96,6 +97,21 @@ class Helper
             $rows[] = [$route->name, $route->value];
         }
 
+        $table = new Table($output);
+        $table->setHeaders($headers);
+        $table->setRows($rows);
+        $table->render();
+    }
+
+    /**
+     * 支持的站点列表
+     * @param OutputInterface $output
+     * @return void
+     */
+    public static function siteTable(OutputInterface $output): void
+    {
+        $headers = ['站点名称', 'Processor', 'Downloader', 'PageUriBuilder', 'ProcessorXml', '类名'];
+        $rows = Factory::siteList();
         $table = new Table($output);
         $table->setHeaders($headers);
         $table->setRows($rows);

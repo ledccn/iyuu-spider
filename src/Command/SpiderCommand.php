@@ -79,6 +79,7 @@ class SpiderCommand extends Command
         $params = array_merge($input->getArguments(), $input->getOptions());
         $config = config('sites.' . $site);
         if (empty($config)) {
+            Helper::siteTable($output);
             throw new RuntimeException('本地配置为空');
         }
 

@@ -3,7 +3,12 @@
 namespace Iyuu\Spider\Sites;
 
 use Iyuu\Spider\Api\SiteModel;
+use Iyuu\Spider\Contract\Downloader;
+use Iyuu\Spider\Contract\PageUriBuilder;
+use Iyuu\Spider\Contract\Processor;
+use Iyuu\Spider\Contract\ProcessorXml;
 use RuntimeException;
+use Throwable;
 
 /**
  * 站点爬虫工厂类
@@ -114,5 +119,61 @@ class Factory
     final public static function getDirname(): string
     {
         return __DIR__;
+    }
+
+    /**
+     * 获取服务提供者类状态
+     * @param string $provider
+     * @return array
+     */
+    final public static function providerStatus(string $provider): array
+    {
+        return [
+            is_a($provider, Processor::class, true),
+            is_a($provider, Downloader::class, true),
+            is_a($provider, PageUriBuilder::class, true),
+            is_a($provider, ProcessorXml::class, true),
+            $provider,
+        ];
+    }
+
+    /**
+     * 获取支持的站点列表
+     * @return array
+     */
+    final public static function siteList(): array
+    {
+        $rows = [];
+        //服务提供者
+        foreach (static::allProvider() as $site => $provider) {
+            $rows[$site] = [
+                $site,
+                ... self::providerStatus($provider)
+            ];
+        }
+
+        //服务类
+        foreach (glob(self::getDirname() . '/*/' . self::DEFAULT_CLASSNAME . '.php') as $filename) {
+            try {
+                $site = basename(dirname($filename));
+                $provider = static::getNamespace() . "\\{$site}\\" . self::DEFAULT_CLASSNAME;
+                self::checkProvider($provider);
+                $site = $provider::SITE_NAME;
+                $rows[$site] = [
+                    $site,
+                    ... self::providerStatus($provider)
+                ];
+            } catch (Throwable $throwable) {
+            }
+        }
+
+        //多维数组排序
+        $_site = [];
+        foreach ($rows as $key => $value) {
+            $_site[$key] = $value[0];
+        }
+        array_multisort($_site, SORT_ASC, $rows);
+
+        return $rows;
     }
 }
