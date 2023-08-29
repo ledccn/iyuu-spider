@@ -216,6 +216,9 @@ class Application
      */
     public function stopMasterProcess(Worker $worker): void
     {
+        if ($worker->id) {
+            return;
+        }
         $start_file = $this->sites->getSiteModel()->site;
         $master_pid = is_file($worker::$pidFile) ? (int)file_get_contents($worker::$pidFile) : 0;
         $master_pid && posix_kill($master_pid, SIGINT);
