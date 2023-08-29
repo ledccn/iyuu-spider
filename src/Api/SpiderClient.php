@@ -77,11 +77,17 @@ class SpiderClient
             'torrent_id' => $torrent_id,
         ];
         $res = $this->curl->get(static::API_SPIDER_FIND, $data);
-        if (!$res->isSuccess()) {
-            var_dump($res);
-            $err_msg = $this->formatErrorMessage($res);
-            throw new BadRequestException('查重失败：' . $err_msg);
-        }
+
+        $retry = 3;
+        do {
+            if (!$res->isSuccess()) {
+                var_dump($res);
+                $err_msg = $this->formatErrorMessage($res);
+                if ($retry <= 0) {
+                    throw new BadRequestException('查重失败：' . $err_msg);
+                }
+            }
+        } while (!$res->isSuccess() && $retry--);
 
         $response = json_decode($res->response, true);
         //var_dump($response);
