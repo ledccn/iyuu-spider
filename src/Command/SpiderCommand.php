@@ -6,7 +6,9 @@ use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Application;
 use Iyuu\Spider\Contract\ProcessorXml;
+use Iyuu\Spider\Contract\Route;
 use Iyuu\Spider\Exceptions\EmptyListException;
+use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
 use Iyuu\Spider\Sites\Params;
@@ -68,6 +70,11 @@ class SpiderCommand extends Command
             throw new RuntimeException('未定义的爬虫类型：' . $type);
         }
         $uri = $input->getOption('uri');
+        $route = $input->getOption('route');
+        if ($route && !Route::hasName($route)) {
+            Helper::routeTable($output);
+            throw new RuntimeException('未定义的路由规则名称：' . $route);
+        }
 
         $params = array_merge($input->getArguments(), $input->getOptions());
         $config = config('sites.' . $site);

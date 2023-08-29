@@ -3,6 +3,9 @@
 namespace Iyuu\Spider;
 
 use Iyuu\Spider\Contract\Downloader;
+use Iyuu\Spider\Contract\Route;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * 助手类
@@ -78,5 +81,24 @@ class Helper
     public static function siteEmptyListFilename(string $site): string
     {
         return runtime_path("/page/$site.empty");
+    }
+
+    /**
+     * 支持的路由规则名字
+     * @param OutputInterface $output
+     * @return void
+     */
+    public static function routeTable(OutputInterface $output): void
+    {
+        $headers = ['name', 'value'];
+        $rows = [];
+        foreach (Route::cases() as $route) {
+            $rows[] = [$route->name, $route->value];
+        }
+
+        $table = new Table($output);
+        $table->setHeaders($headers);
+        $table->setRows($rows);
+        $table->render();
     }
 }
