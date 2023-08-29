@@ -117,7 +117,6 @@ class SpiderClient
      */
     public function createTorrent(string $site, Torrents $torrent, array $data): void
     {
-        $now = time();
         //Step1：组装上报数据
         $data['site'] = $site;
         $data['torrent_id'] = $torrent->id;
@@ -127,24 +126,31 @@ class SpiderClient
         }
         $data['h1'] = $torrent->h1 ?? '';
         $data['title'] = $torrent->title ?? '';
-        $data['timestamp'] = $now;
 
-        //Step2：非超级管理员的时候，添加appid参数，验证用户站点上传权限
-        if (!$this->isAdmin()) {
-            $data['appid'] = substr($this->token, 0, strpos($this->token, 'T'));
-        }
+        $retry = 3;
+        do {
+            $now = time();
+            $data['timestamp'] = $now;
 
-        //Step3：简单签名 sha1(timestamp + secret)
-        //普通用户的secret与爱语飞飞token相同
-        $signature = sha1($now . $this->secret);
-        $data['sign'] = $signature;
+            //Step2：非超级管理员的时候，添加appid参数，验证用户站点上传权限
+            if (!$this->isAdmin()) {
+                $data['appid'] = substr($this->token, 0, strpos($this->token, 'T'));
+            }
 
-        $res = $this->curl->post(static::API_SPIDER_CREATE, $data);
-        if (!$res->isSuccess()) {
-            var_dump($res);
-            $err_msg = $this->formatErrorMessage($res);
-            throw new BadRequestException('特征码上报失败：' . $err_msg);
-        }
+            //Step3：简单签名 sha1(timestamp + secret)
+            //普通用户的secret与爱语飞飞token相同
+            $signature = sha1($now . $this->secret);
+            $data['sign'] = $signature;
+
+            $res = $this->curl->post(static::API_SPIDER_CREATE, $data);
+            if (!$res->isSuccess()) {
+                var_dump($res);
+                $err_msg = $this->formatErrorMessage($res);
+                if ($retry <= 0) {
+                    throw new BadRequestException('特征码上报失败：' . $err_msg);
+                }
+            }
+        } while (!$res->isSuccess() && $retry--);
 
         $response = json_decode($res->response, true);
         //var_dump($response);
