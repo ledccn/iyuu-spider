@@ -9,10 +9,11 @@ interface PageUriBuilder
 {
     /**
      * 构造页面URI
-     * @param int $page
+     * @param int $page 页码
+     * @param Route|string|null $route 路由实例或路由规则名称（枚举）
      * @return string
      */
-    public static function pageBuilder(int $page): string;
+    public static function pageBuilder(int $page, Route|string $route = null): string;
 
     /**
      * 当前页

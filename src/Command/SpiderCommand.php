@@ -44,7 +44,8 @@ class SpiderCommand extends Command
         $this->addArgument('site', InputArgument::REQUIRED, '站点名称')
             ->addArgument('action', InputArgument::OPTIONAL, implode('|', self::ACTION_LIST), '')
             ->addOption('type', null, InputOption::VALUE_OPTIONAL, '爬虫类型:cookie,rss', 'cookie')
-            ->addOption('uri', null, InputOption::VALUE_OPTIONAL, '统一资源标识符', '')
+            ->addOption('uri', null, InputOption::VALUE_OPTIONAL, '单页：统一资源标识符', '')
+            ->addOption('route', null, InputOption::VALUE_OPTIONAL, '批量：路由规则名称', '')
             ->addOption('begin', null, InputOption::VALUE_OPTIONAL, '开始页码', '')
             ->addOption('end', null, InputOption::VALUE_OPTIONAL, '结束页码', '')
             ->addOption('daemon', 'd', InputOption::VALUE_NONE, '守护进程');

@@ -4,6 +4,7 @@ namespace Iyuu\Spider\Frameworks\UNIT3D;
 
 use DOMDocument;
 use Iyuu\Spider\Contract\ProcessorXml;
+use Iyuu\Spider\Contract\Route;
 use Iyuu\Spider\Exceptions\DownloadHtmlException;
 use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Sites\Sites;
@@ -153,7 +154,7 @@ class Parser extends Sites implements ProcessorXml
     private function getDefaultXmlPath(): string
     {
         $config = $this->getConfig();
-        return str_replace('{rsskey}', $config->get('rsskey', ''), 'rss/13.{rsskey}');
+        return str_replace('{rsskey}', $config->get('rsskey', ''), Route::N4->value);
     }
 
     /**
@@ -178,10 +179,12 @@ class Parser extends Sites implements ProcessorXml
 
     /**
      * @param int $page
+     * @param Route|string|null $route
      * @return string
      */
-    public static function pageBuilder(int $page): string
+    public static function pageBuilder(int $page, Route|string $route = null): string
     {
-        return str_replace('{page}', $page, 'torrents?page={page}');
+        $subject = $route instanceof Route ? $route->value : $route;
+        return str_replace('{page}', $page, $subject ?: Route::N3->value);
     }
 }

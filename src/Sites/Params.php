@@ -10,6 +10,7 @@ use Iyuu\Spider\Support\DataStruct;
  * @property string $action 动作
  * @property string $type 爬虫类型:cookie,rss
  * @property string $uri 统一资源标识符
+ * @property string $route 路由规则名称
  * @property string $begin 开始页码
  * @property string $end 结束页码
  * @property bool $daemon 守护进程

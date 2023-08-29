@@ -4,6 +4,7 @@ namespace Iyuu\Spider;
 
 use InvalidArgumentException;
 use Iyuu\Spider\Api\SiteModel;
+use Iyuu\Spider\Contract\Route;
 use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Sites\Config;
 use Iyuu\Spider\Sites\Factory;
@@ -157,10 +158,15 @@ class Application
     {
         static::$worker = $worker;
         $endPage = (int)$this->sites->getParams()->end ?: 0;
+
+        if ($route = $this->sites->getParams()->route ?? '') {
+            //根据路由规则名称，获取路由的枚举值
+            $route = Route::getValue($route);
+        }
         do {
             $page = $this->sites->nextPage();
             try {
-                $uri = ($this->sites)->pageBuilder($page);
+                $uri = ($this->sites)->pageBuilder($page, $route);
                 $this->sites->process($uri);
             } catch (Throwable $throwable) {
                 if ($throwable instanceof EmptyListException) {
