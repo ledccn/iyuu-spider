@@ -70,3 +70,25 @@ Arguments:
 - 命令行运行站点的解析器，测试抓取效果
 - 完成
 
+
+## 目录结构
+```tree
+├───src
+│   ├───Api         IYUU接口
+│   ├───Command     支持的命令
+│   ├───config      插件配置
+│   │   └───plugin
+│   ├───Contract    接口契约
+│   ├───Exceptions  异常类
+│   ├───Frameworks  站点所属的框架
+│   │   ├───NexusPHP
+│   │   └───UNIT3D
+│   ├───Observers   观察者
+│   ├───Pipeline    管道流水线
+│   │   └───Report
+│   ├───Sites       各站点解析器
+│   │   ├─── ...
+│   ├───Support
+│   └───Traits      特性
+└───tests
+```
