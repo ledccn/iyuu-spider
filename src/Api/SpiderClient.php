@@ -76,10 +76,10 @@ class SpiderClient
             'site' => $site,
             'torrent_id' => $torrent_id,
         ];
-        $res = $this->curl->get(static::API_SPIDER_FIND, $data);
 
         $retry = 3;
         do {
+            $res = $this->curl->get(static::API_SPIDER_FIND, $data);
             if (!$res->isSuccess()) {
                 var_dump($res);
                 $err_msg = $this->formatErrorMessage($res);
