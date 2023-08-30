@@ -110,8 +110,14 @@ class Helper
      */
     public static function siteTable(OutputInterface $output): void
     {
-        $headers = ['站点名称', 'Processor', 'Downloader', 'PageUriBuilder', 'ProcessorXml', '类名'];
+        $headers = ['序号', '站点名称', 'Processor', 'Downloader', 'PageUriBuilder', 'ProcessorXml', '类名'];
         $rows = Factory::siteList();
+
+        $i = 1;
+        array_walk($rows, function (&$row) use (&$i) {
+            array_unshift($row, $i++);
+        });
+
         $table = new Table($output);
         $table->setHeaders($headers);
         $table->setRows($rows);

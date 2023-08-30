@@ -36,7 +36,7 @@ class SpiderCommand extends Command
     /**
      * @var string
      */
-    protected static $defaultDescription = 'IYUU出品的PT站点页面解析器';
+    protected static $defaultDescription = 'IYUU出品，PT站点页面解析器';
 
     /**
      * @return void
