@@ -20,8 +20,8 @@ class Sysop
     public AnySite $provider;
 
     /**
-     * @param string $site
-     * @param Config $config
+     * @param string $site 站点在IYUU的标识
+     * @param Config $config 本地配置
      * @throws Exception
      */
     public function __construct(string $site, Config $config)

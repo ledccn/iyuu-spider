@@ -5,8 +5,6 @@ namespace Iyuu\Spider\Sysop;
 use Iyuu\Spider\Contract\Route;
 use Iyuu\Spider\Exceptions\DownloadTorrentException;
 use Iyuu\Spider\Sites\Sites;
-use Iyuu\Spider\Sites\Torrents;
-use RuntimeException;
 use think\Collection;
 
 /**
