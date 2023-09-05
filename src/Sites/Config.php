@@ -6,6 +6,7 @@ use ArrayAccess;
 
 /**
  * 本地配置管理类
+ * @property-read string|null $provider 服务提供者类
  */
 class Config implements ArrayAccess
 {

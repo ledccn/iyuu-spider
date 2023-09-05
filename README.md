@@ -92,3 +92,16 @@ Arguments:
 │   └───Traits      特性
 └───tests
 ```
+
+
+## 站点SYSOP对接
+
+```php
+$config = new \Iyuu\Spider\Sites\Config([
+'provider' => '继承 \Iyuu\Spider\Sysop\AnySite 开发的类，实现download()方法'
+]);
+$handler = new \Iyuu\Spider\Sysop\Sysop('站点标识', $config);
+//二维数组，参考 \Iyuu\Spider\Sites\Torrents
+$items = []
+$handler->run($items);
+```

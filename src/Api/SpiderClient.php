@@ -30,7 +30,7 @@ class SpiderClient
      * 爱语飞飞token
      * @var string
      */
-    protected string $token;
+    protected string $appid;
     /**
      * 上报密钥
      * @var string
@@ -43,12 +43,12 @@ class SpiderClient
 
     /**
      * 构造函数
-     * @param string $token 爱语飞飞token
+     * @param string $appid 爱语飞飞token
      * @param string $secret 上报密钥
      */
-    public function __construct(string $token, string $secret)
+    public function __construct(string $appid, string $secret)
     {
-        $this->token = $token;
+        $this->appid = $appid;
         $this->secret = $secret;
         $this->curl = new Curl();
         $this->curl->setCommon(8, 8);
@@ -60,7 +60,7 @@ class SpiderClient
      */
     public static function getInstance(): self
     {
-        return Container::pull(static::class, [getenv('IYUU_TOKEN') ?: '', getenv('IYUU_SECRET') ?: '']);
+        return Container::pull(static::class, [getenv('IYUU_APPID') ?: '', getenv('IYUU_SECRET') ?: '']);
     }
 
     /**
@@ -140,7 +140,7 @@ class SpiderClient
 
             //Step2：非超级管理员的时候，添加appid参数，验证用户站点上传权限
             if (!$this->isAdmin()) {
-                $data['appid'] = $this->token;
+                $data['appid'] = $this->appid;
             }
 
             //Step3：简单签名 sha1(timestamp + secret)
@@ -175,6 +175,6 @@ class SpiderClient
      */
     protected function isAdmin(): bool
     {
-        return !(ctype_digit($this->token) && 14 === strlen($this->token));
+        return !(ctype_digit($this->appid) && 14 === strlen($this->appid));
     }
 }
