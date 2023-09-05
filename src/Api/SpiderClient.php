@@ -140,7 +140,7 @@ class SpiderClient
 
             //Step2：非超级管理员的时候，添加appid参数，验证用户站点上传权限
             if (!$this->isAdmin()) {
-                $data['appid'] = substr($this->token, 0, strpos($this->token, 'T'));
+                $data['appid'] = $this->token;
             }
 
             //Step3：简单签名 sha1(timestamp + secret)
@@ -175,6 +175,6 @@ class SpiderClient
      */
     protected function isAdmin(): bool
     {
-        return $this->secret && false === str_starts_with($this->secret, 'IYUU');
+        return !(ctype_digit($this->token) && 14 === strlen($this->token));
     }
 }
