@@ -58,10 +58,24 @@ enum Route: string
 
     /**
      * 枚举条目转为数组
+     * - 名 => 值
      * @return array
      */
     public static function toArray(): array
     {
         return array_column(self::cases(), 'value', 'name');
+    }
+
+    /**
+     * 枚举条目转为数组
+     * - 值 => 名
+     * @return array
+     */
+    public static function forSelect(): array
+    {
+        return array_combine(
+            array_column(self::cases(), 'value'),
+            array_column(self::cases(), 'name')
+        );
     }
 }
