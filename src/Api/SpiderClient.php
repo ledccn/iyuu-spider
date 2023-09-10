@@ -19,6 +19,10 @@ class SpiderClient
      */
     const SPIDER_HOST = 'http://api.iyuu.cn:2120';
     /**
+     * 站点列表
+     */
+    const API_SITE_LIST = self::SPIDER_HOST . '/spider/site/index';
+    /**
      * 创建
      */
     const API_SPIDER_CREATE = self::SPIDER_HOST . '/spider/torrent/create';
@@ -27,7 +31,7 @@ class SpiderClient
      */
     const API_SPIDER_FIND = self::SPIDER_HOST . '/spider/torrent/find';
     /**
-     * 爱语飞飞token
+     * 应用id
      * @var string
      */
     protected string $appid;
@@ -61,6 +65,36 @@ class SpiderClient
     public static function getInstance(): self
     {
         return Container::pull(static::class, [getenv('IYUU_APPID') ?: '', getenv('IYUU_SECRET') ?: '']);
+    }
+
+    /**
+     * 站点列表
+     * @return array
+     * @throws BadRequestException
+     */
+    public function siteList(): array
+    {
+        $data = [];
+        if (!$this->isAdmin()) {
+            $data['appid'] = $this->appid;
+        }
+        $now = time();
+        $data['timestamp'] = $now;
+        $signature = sha1($now . $this->secret);
+        $data['sign'] = $signature;
+        $res = $this->curl->get(static::API_SITE_LIST, $data);
+        if (!$res->isSuccess()) {
+            $err_msg = $this->formatErrorMessage($res);
+            throw new BadRequestException('获取站点列表失败：' . $err_msg);
+        }
+        $response = json_decode($res->response, true);
+        $code = $response['code'] ?? -1;
+        $msg = $response['msg'] ?? '缺失错误信息';
+        if (200 === $code) {
+            return array_column($response['data']['sites'], null, 'site');
+        } else {
+            throw new RuntimeException($msg);
+        }
     }
 
     /**
@@ -137,14 +171,11 @@ class SpiderClient
         do {
             $now = time();
             $data['timestamp'] = $now;
-
             //Step2：非超级管理员的时候，添加appid参数，验证用户站点上传权限
             if (!$this->isAdmin()) {
                 $data['appid'] = $this->appid;
             }
-
             //Step3：简单签名 sha1(timestamp + secret)
-            //普通用户的secret与爱语飞飞token相同
             $signature = sha1($now . $this->secret);
             $data['sign'] = $signature;
 

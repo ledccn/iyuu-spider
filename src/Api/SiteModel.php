@@ -2,6 +2,7 @@
 
 namespace Iyuu\Spider\Api;
 
+use Iyuu\Spider\Exceptions\BadRequestException;
 use Iyuu\Spider\Support\DataStruct;
 use RuntimeException;
 
@@ -25,6 +26,7 @@ final class SiteModel extends DataStruct
     /**
      * @param string $site
      * @return self
+     * @throws BadRequestException
      */
     final public static function make(string $site): self
     {
@@ -38,6 +40,7 @@ final class SiteModel extends DataStruct
     /**
      * 从服务器获取全部站点
      * @return array
+     * @throws BadRequestException
      */
     final public static function getServerSites(): array
     {
@@ -50,8 +53,8 @@ final class SiteModel extends DataStruct
                 throw new RuntimeException('读取站点配置失败！' . json_last_error_msg());
             }
         } else {
-            $client = Client::getInstance();
-            $sites = $client->getSites();
+            $client = SpiderClient::getInstance();
+            $sites = $client->siteList();
             self::saveToJson($sites);
         }
 
