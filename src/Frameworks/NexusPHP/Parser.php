@@ -42,7 +42,7 @@ class Parser extends Sites implements ProcessorXml
         $host = $siteModel->getHost() . '/';
         $url = $host . ($path ?: $this->getDefaultPath());
         $html = $this->requestHtml($url);
-        $list = Selector::select($html, "//*[@class='torrentname']");
+        $list = Selector::select($html, "//table[contains(@class,'torrentname')]");
         if (empty($list)) {
             throw new EmptyListException('页面解析失败A');
         }
