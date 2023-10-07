@@ -30,7 +30,8 @@
     "ext-dom": "*",
     "ledc/curl": "^1.1",
     "ledc/pipeline": "*",
-    "guzzlehttp/guzzle": "^7.7"
+    "guzzlehttp/guzzle": "^7.7",
+    "symfony/dom-crawler": "^6.3"
   },
   "autoload": {
     "psr-4": {
