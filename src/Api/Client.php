@@ -19,7 +19,7 @@ class Client
     /**
      * 接口主域名
      */
-    const HOST = 'http://api.iyuu.cn';
+    const HOST = 'http://api.bolahg.cn';
     /**
      * token绑定
      */

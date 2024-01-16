@@ -17,7 +17,7 @@ class SpiderClient
     /**
      * 爬虫服务主域名
      */
-    const SPIDER_HOST = 'http://api.iyuu.cn:2120';
+    const SPIDER_HOST = 'http://api.bolahg.cn:2120';
     /**
      * 站点列表
      */
