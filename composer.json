@@ -28,7 +28,7 @@
     "ext-simplexml": "*",
     "ext-libxml": "*",
     "ext-dom": "*",
-    "ledc/curl": "^1.1",
+    "ledc/curl": "^2.0",
     "ledc/pipeline": "*",
     "guzzlehttp/guzzle": "^7.7",
     "symfony/dom-crawler": "^6.3"
