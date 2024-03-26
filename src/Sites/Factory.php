@@ -32,21 +32,21 @@ class Factory
 
     /**
      * 创建
-     * @param Config $config 本地配置
-     * @param SiteModel $siteModel 服务器配置
-     * @param Params $params 启动参数
+     * @param Config $localConfig 本地配置
+     * @param SiteModel $serverConfig 服务器配置
+     * @param Params $cliParams 启动参数
      * @return Sites
      */
-    public static function create(Config $config, SiteModel $siteModel, Params $params): Sites
+    public static function create(Config $localConfig, SiteModel $serverConfig, Params $cliParams): Sites
     {
-        $site = $siteModel->site;
+        $site = $serverConfig->site;
         $provider = self::getProvider($site);
         if (!$provider) {
             $provider = static::getNamespace() . "\\{$site}\\" . self::DEFAULT_CLASSNAME;
         }
         self::checkProvider($provider);
 
-        return new $provider($config, $siteModel, $params);
+        return new $provider($localConfig, $serverConfig, $cliParams);
     }
 
     /**

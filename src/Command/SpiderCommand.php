@@ -7,6 +7,7 @@ use Iyuu\Spider\Api\SiteModel;
 use Iyuu\Spider\Application;
 use Iyuu\Spider\Contract\ProcessorXml;
 use Iyuu\Spider\Contract\Route;
+use Iyuu\Spider\Exceptions\BadRequestException;
 use Iyuu\Spider\Exceptions\EmptyListException;
 use Iyuu\Spider\Helper;
 use Iyuu\Spider\Sites\Config;
@@ -57,7 +58,7 @@ class SpiderCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
-     * @throws EmptyListException
+     * @throws EmptyListException|BadRequestException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -84,21 +85,21 @@ class SpiderCommand extends Command
         }
 
         //本地配置
-        $_config = new Config($config);
+        $localConfig = new Config($config);
         //爬取参数
-        $_params = new Params($params);
+        $cliParams = new Params($params);
         //服务器配置
-        $siteModel = SiteModel::make($site);
+        $serverConfig = SiteModel::make($site);
 
         if (in_array($action, self::ACTION_LIST)) {
             if (Utils::isWindowsOs()) {
                 throw new InvalidArgumentException('常驻内存仅支持Linux');
             }
-            return $this->startApplication($_config, $siteModel, $_params);
+            return $this->startApplication($localConfig, $serverConfig, $cliParams);
         }
 
         //构造爬虫实例
-        $sites = Factory::create($_config, $siteModel, $_params);
+        $sites = Factory::create($localConfig, $serverConfig, $cliParams);
         $output->writeln("爬取站点 开始 ----->>> $site");
         switch ($type) {
             case 'rss':

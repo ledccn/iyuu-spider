@@ -35,15 +35,15 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
 
     /**
      * 构造函数
-     * @param Config $config 本地配置
-     * @param SiteModel $siteModel 服务器配置
-     * @param Params $params 启动参数
+     * @param Config $localConfig 本地配置
+     * @param SiteModel $serverConfig 服务器配置
+     * @param Params $cliParams 启动参数
      */
-    final public function __construct(Config $config, SiteModel $siteModel, Params $params)
+    final public function __construct(Config $localConfig, SiteModel $serverConfig, Params $cliParams)
     {
-        $this->config = $config;
-        $this->siteModel = $siteModel;
-        $this->params = $params;
+        $this->config = $localConfig;
+        $this->siteModel = $serverConfig;
+        $this->params = $cliParams;
         $this->init();
     }
 
@@ -77,7 +77,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      * 获取启动参数
      * @return Params
      */
-    final public function getParams(): Params
+    public function getParams(): Params
     {
         return $this->params;
     }
