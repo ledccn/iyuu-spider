@@ -12,6 +12,17 @@ https://github.com/ledccn/iyuu-spider
 
 # 使用 Usage
 
+### 部署步骤
+```shell
+composer install
+
+/config/sites.php
+
+/runtime/Bencode.php
+
+.env
+```
+
 ## 运行爬虫
 查看命令帮助：
 ```shell
