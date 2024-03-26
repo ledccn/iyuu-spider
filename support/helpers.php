@@ -27,6 +27,7 @@ use Twig\Error\SyntaxError;
 use Webman\App;
 use Webman\Config;
 use Webman\Route;
+use Workerman\Protocols\Http\Session;
 use Workerman\Worker;
 
 // Project base path
@@ -300,7 +301,7 @@ function route(string $name, ...$parameters): string
  * Session
  * @param mixed $key
  * @param mixed $default
- * @return mixed
+ * @return mixed|bool|Session
  */
 function session($key = null, $default = null)
 {
@@ -379,7 +380,7 @@ function copy_dir(string $source, string $dest, bool $overwrite = false)
         $files = scandir($source);
         foreach ($files as $file) {
             if ($file !== "." && $file !== "..") {
-                copy_dir("$source/$file", "$dest/$file");
+                copy_dir("$source/$file", "$dest/$file", $overwrite);
             }
         }
     } else if (file_exists($source) && ($overwrite || !file_exists($dest))) {
@@ -513,4 +514,15 @@ function cpu_count(): int
         }
     }
     return $count > 0 ? $count : 4;
+}
+
+/**
+ * Get request parameters, if no parameter name is passed, an array of all values is returned, default values is supported
+ * @param string|null $param param's name
+ * @param mixed|null $default default value
+ * @return mixed|null
+ */
+function input(string $param = null, $default = null)
+{
+    return is_null($param) ? request()->all() : request()->input($param, $default);
 }

@@ -1,16 +1,28 @@
 #!/usr/bin/env php
 <?php
 
+use Webman\Config;
 use Webman\Console\Command;
 use Webman\Console\Util;
 use support\Container;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/support/helpers.php';
-require_once __DIR__ . '/support/bootstrap.php';
 $bencodeFile = __DIR__ . '/db/Bencode.php';
 if (is_file($bencodeFile)) {
     require_once $bencodeFile;
+}
+
+is_file(base_path('.env')) || copy(base_path('.env.example'), base_path('.env'));
+
+if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
+    require_once __DIR__ . '/support/bootstrap.php';
+} else {
+    if (class_exists('Support\App')) {
+        Support\App::loadAllConfig(['route']);
+    } else {
+        Config::reload(config_path(), ['route', 'container']);
+    }
 }
 
 $cli = new Command();
@@ -31,8 +43,25 @@ foreach (config('plugin', []) as $firm => $projects) {
         if (!is_array($project)) {
             continue;
         }
-        foreach ($project['command'] ?? [] as $command) {
-            $cli->add(Container::get($command));
+        foreach ($project['command'] ?? [] as $class_name) {
+            try {
+                $reflection = new ReflectionClass($class_name);
+            } catch (ReflectionException $e) {
+                continue;
+            }
+
+            if ($reflection->isAbstract()) {
+                continue;
+            }
+            $properties = $reflection->getStaticProperties();
+            $name = $properties['defaultName'];
+            if (!$name) {
+                throw new RuntimeException("Command {$class_name} has no defaultName");
+            }
+            $description = $properties['defaultDescription'] ?? '';
+            $command = Container::get($class_name);
+            $command->setName($name)->setDescription($description);
+            $cli->add($command);
         }
     }
 }

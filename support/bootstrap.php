@@ -47,6 +47,9 @@ if ($timezone = config('app.default_timezone')) {
     date_default_timezone_set($timezone);
 }
 
+foreach (config('autoload.files', []) as $file) {
+    include_once $file;
+}
 foreach (config('plugin', []) as $firm => $projects) {
     foreach ($projects as $name => $project) {
         if (!is_array($project)) {
@@ -59,6 +62,17 @@ foreach (config('plugin', []) as $firm => $projects) {
     foreach ($projects['autoload']['files'] ?? [] as $file) {
         include_once $file;
     }
+}
+
+foreach (config('bootstrap', []) as $className) {
+    if (!class_exists($className)) {
+        $log = "Warning: Class $className setting in config/bootstrap.php not found\r\n";
+        echo $log;
+        Log::error($log);
+        continue;
+    }
+    /** @var Bootstrap $className */
+    $className::start($worker);
 }
 
 foreach (config('plugin', []) as $firm => $projects) {
