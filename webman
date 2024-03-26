@@ -8,7 +8,7 @@ use support\Container;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/support/helpers.php';
-$bencodeFile = __DIR__ . '/config/Bencode.php';
+$bencodeFile = __DIR__ . '/runtime/Bencode.php';
 if (is_file($bencodeFile)) {
     require_once $bencodeFile;
 }
