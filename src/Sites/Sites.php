@@ -150,13 +150,14 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     public function download($args = null): string|bool|null
     {
         if ($args instanceof Torrents) {
-            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify();
+            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify()->setFollowLocation(1);
             $this->setCurlProxy($curl);
             if ($args->isCookieRequired()) {
                 $curl->setCookies($this->getConfig()->get('cookies'));
             }
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
+                var_dump($curl);
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
                 throw new DownloadTorrentException('种子下载失败：' . $errmsg);
             }

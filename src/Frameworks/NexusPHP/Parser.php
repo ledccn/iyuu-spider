@@ -137,10 +137,10 @@ class Parser extends Sites implements ProcessorXml
     public function processXml(string $path = ''): Collection
     {
         $siteModel = $this->getSiteModel();
-        $host = $siteModel->getHost() . '/';
-        $url = $host . ($path ?: $this->getDefaultXmlPath());
-        //var_dump($url);
+        $host = rtrim($siteModel->getHost(), '/') . '/';
+        $url = $host . ltrim(($path ?: $this->getDefaultXmlPath()), '/');
         $xml = $this->requestXml($url);
+        //var_dump($xml);
         try {
             $items = [];
             $dom = new DOMDocument();
@@ -190,7 +190,7 @@ class Parser extends Sites implements ProcessorXml
     /**
      * @return string
      */
-    private function getDefaultXmlPath(): string
+    protected function getDefaultXmlPath(): string
     {
         $config = $this->getConfig();
         return str_replace('{passkey}', $config->get('passkey', ''), Route::N2->value);
