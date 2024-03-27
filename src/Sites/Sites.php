@@ -157,7 +157,6 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
             }
             $curl->get($args->download);
             if (!$curl->isSuccess()) {
-                var_dump($curl);
                 $errmsg = $curl->error_message ?? '网络不通或cookie过期';
                 throw new DownloadTorrentException('种子下载失败：' . $errmsg);
             }
