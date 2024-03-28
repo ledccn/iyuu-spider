@@ -89,6 +89,9 @@ $PHP_BINARY webman spider shadowflow --type=rss
 #$PHP_BINARY webman spider skyeysnow --type=rss
 #$PHP_BINARY webman spider soulvoice --type=rss
 #$PHP_BINARY webman spider ssd --type=rss
+
+$PHP_BINARY webman spider tjupt --type=rss
+
 #$PHP_BINARY webman spider torrentccf --type=rss
 #$PHP_BINARY webman spider ttg --type=rss
 
