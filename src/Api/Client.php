@@ -111,10 +111,10 @@ class Client
     }
 
     /**
-     * @param \Curl\Curl $curl
+     * @param Curl $curl
      * @return string
      */
-    public function formatErrorMessage(\Curl\Curl $curl): string
+    public function formatErrorMessage(Curl $curl): string
     {
         return $curl->error_message ?? '服务器无响应';
     }
