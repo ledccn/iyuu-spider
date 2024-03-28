@@ -2,10 +2,10 @@
 
 namespace Iyuu\Spider\Api;
 
-use Iyuu\Spider\Container;
 use Iyuu\Spider\Exceptions\BadRequestException;
 use Iyuu\Spider\Exceptions\ServerErrorHttpException;
 use Iyuu\Spider\Sites\Torrents;
+use Ledc\Container\App;
 use Ledc\Curl\Curl;
 use RuntimeException;
 
@@ -55,7 +55,7 @@ class SpiderClient
         $this->appid = $appid;
         $this->secret = $secret;
         $this->curl = new Curl();
-        $this->curl->setCommon(8, 8);
+        $this->curl->setTimeout(8, 8);
     }
 
     /**
@@ -64,7 +64,7 @@ class SpiderClient
      */
     public static function getInstance(): self
     {
-        return Container::pull(static::class, [getenv('IYUU_APPID') ?: '', getenv('IYUU_SECRET') ?: '']);
+        return App::pull(static::class, [getenv('IYUU_APPID') ?: '', getenv('IYUU_SECRET') ?: '']);
     }
 
     /**

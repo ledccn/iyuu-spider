@@ -90,10 +90,10 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      */
     public function requestHtml(string $url): string
     {
-        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setTimeout(20, 30)->setSslVerify();
         $this->setCurlProxy($curl);
         $config = $this->getConfig();
-        $curl->setCookies($config->get('cookies'));
+        $curl->setCookies($config->get('cookie', $config->get('cookies')));
         $curl->get($url);
         if (!$curl->isSuccess()) {
             $errmsg = $curl->error_message ?? '网络不通或cookies过期';
@@ -126,7 +126,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
      */
     public function requestXml(string $url): string
     {
-        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(20, 30)->setSslVerify();
+        $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setTimeout(20, 30)->setSslVerify();
         $this->setCurlProxy($curl);
         $curl->get($url);
         if (!$curl->isSuccess()) {
@@ -150,7 +150,7 @@ abstract class Sites implements Processor, Downloader, PageUriBuilder
     public function download($args = null): string|bool|null
     {
         if ($args instanceof Torrents) {
-            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setCommon(30, 120)->setSslVerify()->setFollowLocation(1);
+            $curl = Curl::getInstance()->setUserAgent(Helper::selfUserAgent())->setTimeout(30, 120)->setSslVerify()->setFollowLocation(1);
             $this->setCurlProxy($curl);
             if ($args->isCookieRequired()) {
                 $curl->setCookies($this->getConfig()->get('cookies'));

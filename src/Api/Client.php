@@ -3,7 +3,7 @@
 namespace Iyuu\Spider\Api;
 
 use InvalidArgumentException;
-use Iyuu\Spider\Container;
+use Ledc\Container\App;
 use Ledc\Curl\Curl;
 use RuntimeException;
 
@@ -55,7 +55,7 @@ class Client
         }
         $this->iyuuToken = $iyuuToken;
         $this->curl = new Curl();
-        $this->curl->setCommon(8, 8);
+        $this->curl->setTimeout(8, 8);
     }
 
     /**
@@ -64,7 +64,7 @@ class Client
      */
     public static function getInstance(): self
     {
-        return Container::pull(static::class, [getenv('IYUU_TOKEN') ?: '']);
+        return App::pull(static::class, [getenv('IYUU_TOKEN') ?: '']);
     }
 
     /**

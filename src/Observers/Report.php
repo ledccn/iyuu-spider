@@ -2,7 +2,6 @@
 
 namespace Iyuu\Spider\Observers;
 
-use Iyuu\Spider\Container;
 use Iyuu\Spider\Contract\Observer;
 use Iyuu\Spider\Contract\Reseed;
 use Iyuu\Spider\Exceptions\BadRequestException;
@@ -18,6 +17,7 @@ use Iyuu\Spider\Sites\Payload;
 use Iyuu\Spider\Sites\Sites;
 use Iyuu\Spider\Sites\Torrents;
 use Iyuu\Spider\Utils;
+use Ledc\Container\App;
 use Ledc\Pipeline\Pipeline;
 use support\Log;
 use Throwable;
@@ -59,7 +59,7 @@ class Report implements Observer
         try {
             ob_start();
             Utils::echo(sprintf('站点：%s | 页码：%s', $sites->getParams()->site, $sites->currentPage()));
-            $pipeline = new Pipeline(Container::getInstance());
+            $pipeline = new Pipeline(App::getInstance());
             $pipeline->send(new Payload($sites, $torrent))
                 ->through(static::$pipelines)
                 ->thenReturn();

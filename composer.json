@@ -28,8 +28,9 @@
     "ext-simplexml": "*",
     "ext-libxml": "*",
     "ext-dom": "*",
-    "ledc/curl": "^2.0",
-    "ledc/pipeline": "*",
+    "ledc/curl": "^8.0",
+    "ledc/pipeline": "^8.0",
+    "ledc/container": "^8.1",
     "guzzlehttp/guzzle": "^7.7",
     "symfony/dom-crawler": "^6.3"
   },
